@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
 from database import init_db, add_paste, get_all_pastes, get_paste, delete_paste
 from auth import check_password
 
@@ -36,9 +36,10 @@ def create():
     
     paste_id = add_paste(content)
     
-    # Формируем ссылку для просмотра
-    view_url = request.host_url + 'view/' + paste_id
-    raw_url = request.host_url + 'raw/' + paste_id
+    # Формируем ОБЕ ссылки: с оформлением и сырую
+    host_url = request.host_url.rstrip('/')
+    view_url = f"{host_url}/view/{paste_id}"
+    raw_url = f"{host_url}/raw/{paste_id}"
     
     return jsonify({
         'success': True,
@@ -63,11 +64,12 @@ def view_raw(paste_id):
         return "Запись не найдена или была удалена", 404
     
     # Отправляем текст с правильными заголовками
-    response = app.response_class(
+    response = Response(
         response=content,
         status=200,
         mimetype='text/plain; charset=utf-8'
     )
+    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
     return response
 
 # API для удаления (только для админа)
