@@ -33,12 +33,6 @@ def create():
     if not content:
         return "Текст не может быть пустым", 400
     
-    # ПРОВЕРКА: Что приходит из формы
-    print(f"\n=== [DEBUG ФОРМА] Начало создания ===", file=sys.stderr)
-    print(f"[DEBUG ФОРМА] Длина из формы: {len(content)}", file=sys.stderr)
-    print(f"[DEBUG ФОРМА] Последние 100 символов: '{content[-100:]}'", file=sys.stderr)
-    print(f"=== [DEBUG ФОРМА] Конец ===\n", file=sys.stderr)
-    
     paste_id = add_paste(content)
     
     host_url = request.host_url.rstrip('/')
@@ -57,18 +51,43 @@ def view(paste_id):
     content = get_paste(paste_id)
     if content is None:
         return "Запись не найдена или была удалена", 404
-    # ВРЕМЕННО убираем очистку
-    return render_template('view.html', content=content)
+    
+    # Очищаем для HTML
+    clean_content = content.replace('\r\n', '\n').replace('\r', '\n')
+    clean_content = clean_content.replace('\x0b', '').replace('\x0c', '')
+    
+    return render_template('view.html', content=clean_content)
 
 @app.route('/raw/<paste_id>')
 def view_raw(paste_id):
+    """
+    Функция для отдачи сырого (plain text) содержимого вставки.
+    """
+    print(f"\n=== [DEBUG RAW] Обработка /raw/{paste_id} ===", file=sys.stderr)
+    
     content = get_paste(paste_id)
     if content is None:
+        print(f"[DEBUG RAW] Вставка не найдена", file=sys.stderr)
         return "Вставка не найдена", 404
     
-    # ВРЕМЕННО убираем очистку
-    response = make_response(content)
+    # КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ
+    # 1. Заменяем переносы строк
+    clean_content = content.replace('\r\n', '\n').replace('\r', '\n')
+    # 2. Удаляем опасные управляющие символы, которые могут обрывать вывод
+    clean_content = clean_content.replace('\x0b', '').replace('\x0c', '')  # вертикальная табуляция и form feed
+    clean_content = clean_content.replace('\x00', '')  # нулевой байт
+    clean_content = clean_content.replace('\x1a', '')  # Ctrl+Z (конец файла в Windows)
+    
+    print(f"[DEBUG RAW] Длина исходная: {len(content)}", file=sys.stderr)
+    print(f"[DEBUG RAW] Длина очищенная: {len(clean_content)}", file=sys.stderr)
+    print(f"[DEBUG RAW] Последние 100 символов: '{clean_content[-100:]}'", file=sys.stderr)
+    
+    response = make_response(clean_content)
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    # Явно указываем размер для надёжности
+    response.headers['Content-Length'] = str(len(clean_content.encode('utf-8')))
+    
+    print(f"=== [DEBUG RAW] Завершено ===\n", file=sys.stderr)
     return response
 
 @app.route('/api/delete/<paste_id>', methods=['POST'])
