@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response, make_response
 from database import init_db, add_paste, get_all_pastes, get_paste, delete_paste
 from auth import check_password
+from datetime import datetime
+import sys
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_for_sessions'
@@ -59,17 +61,49 @@ def view(paste_id):
 # Просмотр записи в виде ЧИСТОГО ТЕКСТА (для анализа)
 @app.route('/raw/<paste_id>')
 def view_raw(paste_id):
-    content = get_paste(paste_id)
-    if content is None:
-        return "Запись не найдена или была удалена", 404
+    """
+    Функция для отдачи сырого (plain text) содержимого вставки.
+    """
+    # КРИТИЧЕСКИЙ ОТЛАДОЧНЫЙ БЛОК 1: начало обработки запроса
+    print(f"\n=== [DEBUG] Начало обработки /raw/{paste_id} ===", file=sys.stderr)
+    print(f"[DEBUG] Время запроса: {datetime.now().isoformat()}", file=sys.stderr)
     
-    # Отправляем текст с правильными заголовками
-    response = Response(
-        response=content,
-        status=200,
-        mimetype='text/plain; charset=utf-8'
-    )
+    # Получаем контент из базы данных
+    content = get_paste(paste_id)
+    
+    # КРИТИЧЕСКИЙ ОТЛАДОЧНЫЙ БЛОК 2: что получили из БД
+    print(f"[DEBUG] Результат get_paste('{paste_id}'):", file=sys.stderr)
+    print(f"[DEBUG]   - content is None? {content is None}", file=sys.stderr)
+    print(f"[DEBUG]   - Тип content: {type(content)}", file=sys.stderr)
+    
+    if content is None:
+        print(f"[DEBUG]   - Вставка с ID '{paste_id}' не найдена в БД", file=sys.stderr)
+        print(f"=== [DEBUG] Конец обработки /raw/{paste_id} ===\n", file=sys.stderr)
+        return "Вставка не найдена", 404
+    
+    # Анализ полученного контента
+    print(f"[DEBUG]   - Длина content: {len(content)} символов", file=sys.stderr)
+    
+    # Показываем первые и последние 200 символов для диагностики обрезки
+    print(f"[DEBUG]   - Первые 200 символов: '{content[:200] if len(content) > 200 else content}'", file=sys.stderr)
+    print(f"[DEBUG]   - Последние 200 символов: '{content[-200:] if len(content) > 200 else content}'", file=sys.stderr)
+    
+    # Проверяем, нет ли в тексте специальных символов, которые могут обрывать вывод
+    problematic_chars = ['\x00', '\x1a', '\x0c', '\r', '\n\n\n']  # нулевой байт, Ctrl+Z, form feed
+    for char in problematic_chars:
+        if char in content:
+            print(f"[DEBUG] ВНИМАНИЕ! В тексте найден проблемный символ: {repr(char)}", file=sys.stderr)
+    
+    # Создаём ответ
+    response = make_response(content)
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    
+    # КРИТИЧЕСКИЙ ОТЛАДОЧНЫЙ БЛОК 3: что отправляем в ответе
+    print(f"[DEBUG] Параметры ответа:", file=sys.stderr)
+    print(f"[DEBUG]   - Content-Type: {response.headers.get('Content-Type')}", file=sys.stderr)
+    print(f"[DEBUG]   - Длина ответа: {len(response.get_data()) if response.get_data() else 0} байт", file=sys.stderr)
+    print(f"=== [DEBUG] Конец обработки /raw/{paste_id} ===\n", file=sys.stderr)
+    
     return response
 
 # API для удаления (только для админа)
