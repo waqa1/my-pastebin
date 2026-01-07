@@ -2,7 +2,7 @@ import sqlite3
 import secrets
 import string
 from datetime import datetime
-import sys  # Для отладки
+import sys
 
 def generate_id(length=8):
     alphabet = string.ascii_lowercase + string.digits
@@ -22,26 +22,27 @@ def init_db():
     conn.commit()
     conn.close()
 
-# ИЗМЕНЕНИЕ 1: ВРЕМЕННО убираем очистку, оставляем как есть
 def add_paste(content):
-    # ВРЕМЕННО ЗАКОММЕНТИРУЕМ очистку
-    # normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
+    # КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: очистка при сохранении
+    clean_content = content.replace('\r\n', '\n').replace('\r', '\n')
+    clean_content = clean_content.replace('\x0b', '').replace('\x0c', '')
+    clean_content = clean_content.replace('\x00', '').replace('\x1a', '')
     
     paste_id = generate_id()
     secret_key = generate_id(16)
     
-    # ИЗМЕНЕНИЕ 2: Отладочная печать
-    print(f"\n=== [DEBUG БАЗА] Сохранение вставки {paste_id} ===", file=sys.stderr)
-    print(f"[DEBUG БАЗА] Длина полученного текста: {len(content)}", file=sys.stderr)
-    print(f"[DEBUG БАЗА] Последние 150 символов: '{content[-150:]}'", file=sys.stderr)
-    print(f"=== [DEBUG БАЗА] Конец сохранения ===\n", file=sys.stderr)
+    print(f"\n=== [DEBUG SAVE] Сохранение {paste_id} ===", file=sys.stderr)
+    print(f"[DEBUG SAVE] Длина очищенная: {len(clean_content)}", file=sys.stderr)
+    print(f"[DEBUG SAVE] Последние 150 символов: '{clean_content[-150:]}'", file=sys.stderr)
     
     conn = sqlite3.connect('pastes.db')
     c = conn.cursor()
     c.execute("INSERT INTO pastes (id, content, created_at, secret_key) VALUES (?, ?, ?, ?)",
-              (paste_id, content, datetime.now(), secret_key))  # Используем исходный content
+              (paste_id, clean_content, datetime.now(), secret_key))
     conn.commit()
     conn.close()
+    
+    print(f"=== [DEBUG SAVE] Успешно сохранено ===\n", file=sys.stderr)
     return paste_id
 
 def get_all_pastes():
