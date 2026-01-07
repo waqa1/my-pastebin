@@ -2,17 +2,15 @@ import sqlite3
 import secrets
 import string
 from datetime import datetime
+import sys  # Для отладки
 
-# Функция для генерации случайного ID
 def generate_id(length=8):
     alphabet = string.ascii_lowercase + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
-# Инициализация базы данных
 def init_db():
     conn = sqlite3.connect('pastes.db')
     c = conn.cursor()
-    # Создаём таблицу "pastes" с полями: id, текст, дата создания, секретный ключ для удаления
     c.execute('''
         CREATE TABLE IF NOT EXISTS pastes (
             id TEXT PRIMARY KEY,
@@ -24,23 +22,28 @@ def init_db():
     conn.commit()
     conn.close()
 
-# Добавление новой вставки
+# ИЗМЕНЕНИЕ 1: ВРЕМЕННО убираем очистку, оставляем как есть
 def add_paste(content):
-    # Нормализуем концы строк: заменяем \r\n и \r на \n
-    normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
+    # ВРЕМЕННО ЗАКОММЕНТИРУЕМ очистку
+    # normalized_content = content.replace('\r\n', '\n').replace('\r', '\n')
     
     paste_id = generate_id()
     secret_key = generate_id(16)
     
+    # ИЗМЕНЕНИЕ 2: Отладочная печать
+    print(f"\n=== [DEBUG БАЗА] Сохранение вставки {paste_id} ===", file=sys.stderr)
+    print(f"[DEBUG БАЗА] Длина полученного текста: {len(content)}", file=sys.stderr)
+    print(f"[DEBUG БАЗА] Последние 150 символов: '{content[-150:]}'", file=sys.stderr)
+    print(f"=== [DEBUG БАЗА] Конец сохранения ===\n", file=sys.stderr)
+    
     conn = sqlite3.connect('pastes.db')
     c = conn.cursor()
     c.execute("INSERT INTO pastes (id, content, created_at, secret_key) VALUES (?, ?, ?, ?)",
-              (paste_id, normalized_content, datetime.now(), secret_key))
+              (paste_id, content, datetime.now(), secret_key))  # Используем исходный content
     conn.commit()
     conn.close()
     return paste_id
 
-# Получение всех вставок (для админки)
 def get_all_pastes():
     conn = sqlite3.connect('pastes.db')
     c = conn.cursor()
@@ -48,10 +51,8 @@ def get_all_pastes():
     pastes = c.fetchall()
     conn.close()
     
-    # Форматируем результат
     result = []
     for paste_id, content, created_at in pastes:
-        # Обрезаем контент для отображения в списке
         preview = content[:200] + "..." if len(content) > 200 else content
         result.append({
             'id': paste_id,
@@ -61,7 +62,6 @@ def get_all_pastes():
         })
     return result
 
-# Получение конкретной вставки по ID
 def get_paste(paste_id):
     conn = sqlite3.connect('pastes.db')
     c = conn.cursor()
@@ -70,10 +70,9 @@ def get_paste(paste_id):
     conn.close()
     
     if result:
-        return result[0]  # Возвращаем текст
+        return result[0]
     return None
 
-# Удаление вставки по ID
 def delete_paste(paste_id):
     conn = sqlite3.connect('pastes.db')
     c = conn.cursor()
