@@ -38,20 +38,37 @@ def create():
     
     # Формируем ссылку для просмотра
     view_url = request.host_url + 'view/' + paste_id
+    raw_url = request.host_url + 'raw/' + paste_id
     
     return jsonify({
         'success': True,
         'view_url': view_url,
+        'raw_url': raw_url,
         'paste_id': paste_id
     })
 
-# Просмотр записи (доступно всем по ссылке)
+# Просмотр записи (доступно всем по ссылке) - HTML версия
 @app.route('/view/<paste_id>')
 def view(paste_id):
     content = get_paste(paste_id)
     if content is None:
         return "Запись не найдена или была удалена", 404
     return render_template('view.html', content=content)
+
+# Просмотр записи в виде ЧИСТОГО ТЕКСТА (для анализа)
+@app.route('/raw/<paste_id>')
+def view_raw(paste_id):
+    content = get_paste(paste_id)
+    if content is None:
+        return "Запись не найдена или была удалена", 404
+    
+    # Отправляем текст с правильными заголовками
+    response = app.response_class(
+        response=content,
+        status=200,
+        mimetype='text/plain; charset=utf-8'
+    )
+    return response
 
 # API для удаления (только для админа)
 @app.route('/api/delete/<paste_id>', methods=['POST'])
