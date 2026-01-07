@@ -5,7 +5,7 @@
     <style>
         body { 
             font-family: Arial, sans-serif; 
-            max-width: 900px; 
+            max-width: 1100px; 
             margin: 40px auto; 
             padding: 20px; 
         }
@@ -31,18 +31,22 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 30px;
+            font-size: 14px;
         }
         .pastes-table th, .pastes-table td {
             border: 1px solid #ddd;
-            padding: 12px;
+            padding: 10px;
             text-align: left;
+            vertical-align: top;
         }
         .pastes-table th {
             background-color: #f2f2f2;
             font-weight: bold;
+            position: sticky;
+            top: 0;
         }
         .pastes-table tr:hover {
-            background-color: #f5f5f5;
+            background-color: #f9f9f9;
         }
         .delete-btn {
             background-color: #f44336;
@@ -51,22 +55,46 @@
             padding: 6px 12px;
             cursor: pointer;
             border-radius: 3px;
+            font-size: 13px;
         }
         .delete-btn:hover {
             background-color: #d32f2f;
         }
         .preview {
-            max-width: 400px;
+            max-width: 250px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .link-cell {
+            max-width: 300px;
+            word-break: break-all;
+        }
         .link {
             color: #2196F3;
             text-decoration: none;
+            font-family: monospace;
+            font-size: 12px;
         }
         .link:hover {
             text-decoration: underline;
+        }
+        .copy-btn {
+            background-color: #757575;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+        .copy-btn:hover {
+            background-color: #5d5d5d;
+        }
+        .copy-btn.copied {
+            background-color: #4CAF50;
         }
         .result-box {
             background: #f8f9fa;
@@ -104,6 +132,31 @@
         .cancel-btn {
             background: #757575;
         }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 140px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -70px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -127,7 +180,8 @@
                     <th>ID</th>
                     <th>Дата создания</th>
                     <th>Предпросмотр</th>
-                    <th>Ссылка для просмотра</th>
+                    <th>Текст (с оформлением)</th>
+                    <th>Текст (без оформления)</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -137,11 +191,33 @@
                     <td><code>{{ paste.id }}</code></td>
                     <td>{{ paste.created_at }}</td>
                     <td class="preview" title="{{ paste.preview }}">{{ paste.preview }}</td>
-                    <td>
-                        <a href="/view/{{ paste.id }}" class="link" target="_blank">
-                            /view/{{ paste.id }}
-                        </a>
+                    
+                    <!-- Столбец для ссылки с оформлением -->
+                    <td class="link-cell">
+                        <div class="tooltip">
+                            <a href="/view/{{ paste.id }}" class="link" target="_blank">
+                                /view/{{ paste.id }}
+                            </a>
+                            <span class="tooltiptext">Открыть в браузере</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}view/{{ paste.id }}', this)">
+                            Копировать
+                        </button>
                     </td>
+                    
+                    <!-- НОВЫЙ столбец для ссылки без оформления -->
+                    <td class="link-cell">
+                        <div class="tooltip">
+                            <a href="/raw/{{ paste.id }}" class="link" target="_blank">
+                                /raw/{{ paste.id }}
+                            </a>
+                            <span class="tooltiptext">Сырой текст (для анализа)</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}raw/{{ paste.id }}', this)">
+                            Копировать
+                        </button>
+                    </td>
+                    
                     <td>
                         <button class="delete-btn" onclick="confirmDelete('{{ paste.id }}')">
                             Удалить
@@ -155,7 +231,7 @@
         <p>Записей пока нет.</p>
     {% endif %}
     
-    <!-- Диалог подтверждения -->
+    <!-- Диалог подтверждения удаления -->
     <div id="confirmDialog" class="confirm-dialog" style="display: none;">
         <div class="confirm-box">
             <h3>Подтверждение удаления</h3>
@@ -170,6 +246,24 @@
     
     <script>
         let currentDeleteId = null;
+        
+        // Функция копирования в буфер обмена
+        function copyToClipboard(text, buttonElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Визуальная обратная связь
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = 'Скопировано!';
+                buttonElement.classList.add('copied');
+                
+                setTimeout(() => {
+                    buttonElement.textContent = originalText;
+                    buttonElement.classList.remove('copied');
+                }, 1500);
+            }).catch(err => {
+                console.error('Ошибка копирования: ', err);
+                alert('Не удалось скопировать ссылку');
+            });
+        }
         
         // Обработка создания новой записи
         document.getElementById('createForm').addEventListener('submit', function(e) {
@@ -186,8 +280,12 @@
                 if (data.success) {
                     document.getElementById('result').innerHTML = `
                         <h4>Запись создана!</h4>
-                        <p><strong>Ссылка для просмотра:</strong> 
-                        <a href="${data.view_url}" target="_blank">${data.view_url}</a></p>
+                        <p><strong>Ссылка с оформлением:</strong> 
+                        <a href="${data.view_url}" target="_blank">${data.view_url}</a>
+                        <button class="copy-btn" onclick="copyToClipboard('${data.view_url}', this)">Копировать</button></p>
+                        <p><strong>Сырая ссылка (без оформления):</strong> 
+                        <a href="${data.raw_url}" target="_blank">${data.raw_url}</a>
+                        <button class="copy-btn" onclick="copyToClipboard('${data.raw_url}', this)">Копировать</button></p>
                         <p><em>Обновите страницу, чтобы увидеть новую запись в списке.</em></p>
                     `;
                     document.getElementById('result').style.display = 'block';
@@ -223,7 +321,7 @@
             .then(data => {
                 if (data.success) {
                     alert('Запись успешно удалена!');
-                    location.reload(); // Перезагружаем страницу
+                    location.reload();
                 } else {
                     alert('Ошибка: ' + (data.error || 'Не удалось удалить запись'));
                     document.getElementById('confirmDialog').style.display = 'none';
@@ -247,6 +345,14 @@
                 this.style.display = 'none';
                 currentDeleteId = null;
             }
+        });
+        
+        // Автоматическое копирование при клике на ссылку (опционально)
+        document.querySelectorAll('.link-cell .link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Можно добавить автоматическое копирование при клике на саму ссылку
+                // copyToClipboard(this.href, this.nextElementSibling);
+            });
         });
     </script>
 </body>
