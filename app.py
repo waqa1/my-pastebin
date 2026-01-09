@@ -22,8 +22,47 @@ def admin():
                 return "Неверный пароль", 403
         return render_template('create.html')
     
-    pastes = get_all_pastes()
-    return render_template('admin.html', pastes=pastes)
+    # Получаем номер страницы
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    
+    # Получаем данные из базы
+    db = SessionLocal()
+    
+    # Общее количество записей
+    total_pastes = db.query(Paste).count()
+    
+    # Записи для текущей страницы
+    pastes = db.query(Paste).order_by(Paste.created_at.desc()) \
+                           .offset((page - 1) * per_page) \
+                           .limit(per_page).all()
+    
+    # Формируем список как раньше
+    result = []
+    host_url = request.host_url.rstrip('/')
+    
+    for paste in pastes:
+        preview = paste.content[:200] + "..." if len(paste.content) > 200 else paste.content
+        result.append({
+            'id': paste.id,
+            'preview': preview,
+            'created_at': paste.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'length': len(paste.content),
+            'view_url': f"{host_url}/view/{paste.id}",
+            'raw_url': f"{host_url}/raw/{paste.id}"
+        })
+    
+    db.close()
+    
+    # Вычисляем общее количество страниц
+    total_pages = max(1, (total_pastes + per_page - 1) // per_page)
+    
+    # Передаем ВСЕ необходимые переменные в шаблон
+    return render_template('admin.html', 
+                         pastes=result,
+                         current_page=page,
+                         total_pages=total_pages,
+                         total_pastes=total_pastes)
 
 @app.route('/create', methods=['POST'])
 def create():
@@ -219,6 +258,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
