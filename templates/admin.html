@@ -335,7 +335,7 @@ button {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
-    <img src="ТВОЯ_ССЫЛКА_НА_КАРТИНКУ_160x600" 
+    <img src="https://milasdogushaber.com/wp-content/uploads/2023/02/160x600-reklam-alani-demo.jpg" 
          alt="Рекламный баннер" 
          style="width: 100%; height: 100%; object-fit: cover;">
 </div>
@@ -348,7 +348,7 @@ button {
     overflow: hidden;
     margin-top: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
-    <img src="ТВОЯ_ССЫЛКА_НА_КАРТИНКУ_160x120" 
+    <img src="https://cdn.nichesites.pikoya.com/pcgames_zone/images/games/41456/gallery/79298_thumb.jpg" 
          alt="Малый баннер" 
          style="width: 100%; height: 100%; object-fit: cover;">
 </div>
@@ -597,7 +597,44 @@ button {
 <div id="noPastesMessage" style="display: none; text-align: center; padding: 40px; color: #666;">
     📝 Записей пока нет. Создайте первую!
 </div>
+            </div><!-- Закрытие центральной части -->
+
+<!-- ПАГИНАЦИЯ (добавьте перед закрывающим </body>) -->
+<!-- Пагинация (будет обновляться через AJAX) -->
+<div id="paginationContainer" style="display: none; text-align: center; margin: 30px 0; padding: 20px; border-top: 1px solid #ddd;">
+    <p id="pageInfo" style="color: #666; margin-bottom: 10px;">
+        Загрузка...
+    </p>
     
+    <div id="paginationButtons" style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
+        <!-- Кнопки пагинации будут вставлены через JavaScript -->
+    </div>
+   
+
+
+        <!-- ========== ФУТЕР (ВСТАВИТЬ ЗДЕСЬ) ========== -->
+            <div style="
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                text-align: center;
+                color: #666;
+                font-size: 13px;
+            ">
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <span>📊 Всего записей: <span id="totalRecords">0</span></span>
+                    <span>👁️ Просмотров: <span id="totalViews">0</span></span>
+                    <span>⏱️ Время работы: <span id="uptime">0д 0ч</span></span>
+                </div>
+                <div>
+                    © 2024 Мой Pastebin | 
+                    <a href="#" style="color: #667eea; text-decoration: none;">Политика конфиденциальности</a> | 
+                    <a href="#" style="color: #667eea; text-decoration: none;">Условия использования</a>
+                </div>
+            </div>
+            <!-- ========== КОНЕЦ ФУТЕРА ========== -->
+
+            
     <!-- Диалог подтверждения удаления -->
     <div id="confirmDialog" class="confirm-dialog" style="display: none;">
         <div class="confirm-box">
@@ -1132,43 +1169,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
 </script>
 
-<!-- ПАГИНАЦИЯ (добавьте перед закрывающим </body>) -->
-<!-- Пагинация (будет обновляться через AJAX) -->
-<div id="paginationContainer" style="display: none; text-align: center; margin: 30px 0; padding: 20px; border-top: 1px solid #ddd;">
-    <p id="pageInfo" style="color: #666; margin-bottom: 10px;">
-        Загрузка...
-    </p>
-    
-    <div id="paginationButtons" style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
-        <!-- Кнопки пагинации будут вставлены через JavaScript -->
-    </div>
-   
-</div><!-- Закрытие центральной части -->
 
-        <!-- ========== ФУТЕР (ВСТАВИТЬ ЗДЕСЬ) ========== -->
-            <div style="
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 1px solid #eee;
-                text-align: center;
-                color: #666;
-                font-size: 13px;
-            ">
-                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 10px;">
-                    <span>📊 Всего записей: <span id="totalRecords">0</span></span>
-                    <span>👁️ Просмотров: <span id="totalViews">0</span></span>
-                    <span>⏱️ Время работы: <span id="uptime">0д 0ч</span></span>
-                </div>
-                <div>
-                    © 2024 Мой Pastebin | 
-                    <a href="#" style="color: #667eea; text-decoration: none;">Политика конфиденциальности</a> | 
-                    <a href="#" style="color: #667eea; text-decoration: none;">Условия использования</a>
-                </div>
-            </div>
-            <!-- ========== КОНЕЦ ФУТЕРА ========== -->
     
 </body>
 </html>
+
 
 
 
