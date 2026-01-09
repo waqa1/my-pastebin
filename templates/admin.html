@@ -350,270 +350,12 @@ button {
     </div>
     
     <script>
-        let currentDeleteId = null;
-        
-        // Функция копирования в буфер обмена
-        function copyToClipboard(text, buttonElement) {
-            navigator.clipboard.writeText(text).then(() => {
-                // Визуальная обратная связь
-                const originalText = buttonElement.textContent;
-                buttonElement.textContent = 'Скопировано!';
-                buttonElement.classList.add('copied');
-                
-                setTimeout(() => {
-                    buttonElement.textContent = originalText;
-                    buttonElement.classList.remove('copied');
-                }, 1500);
-            }).catch(err => {
-                console.error('Ошибка копирования: ', err);
-                alert('Не удалось скопировать ссылку');
-            });
-        }
-        
-        // Обработка создания новой записи
-        document.getElementById('createForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            fetch('/create', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('result').innerHTML = `
-                        <h4>Запись создана!</h4>
-                        <p><strong>Ссылка с оформлением:</strong> 
-                        <a href="${data.view_url}" target="_blank">${data.view_url}</a>
-                        <button class="copy-btn" onclick="copyToClipboard('${data.view_url}', this)">Копировать</button></p>
-                        <p><strong>Сырая ссылка (без оформления):</strong> 
-                        <a href="${data.raw_url}" target="_blank">${data.raw_url}</a>
-                        <button class="copy-btn" onclick="copyToClipboard('${data.raw_url}', this)">Копировать</button></p>
-                        <p><em>Обновите страницу, чтобы увидеть новую запись в списке.</em></p>
-                    `;
-                    document.getElementById('result').style.display = 'block';
-                    document.getElementById('content').value = '';
-                    
-                    // Автоматическое обновление через 3 секунды
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000);
-                }
-            })
-            .catch(error => {
-                document.getElementById('result').innerHTML = `<p style="color: red;">Ошибка: ${error}</p>`;
-                document.getElementById('result').style.display = 'block';
-            });
-        });
-        
-        // Подтверждение удаления
-        function confirmDelete(pasteId) {
-            currentDeleteId = pasteId;
-            document.getElementById('deleteId').textContent = pasteId;
-            document.getElementById('confirmDialog').style.display = 'flex';
-        }
-        
-        // Обработка кнопки подтверждения удаления
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-            if (!currentDeleteId) return;
-            
-            fetch('/api/delete/' + currentDeleteId, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Запись успешно удалена!');
-                    location.reload();
-                } else {
-                    alert('Ошибка: ' + (data.error || 'Не удалось удалить запись'));
-                    document.getElementById('confirmDialog').style.display = 'none';
-                }
-            })
-            .catch(error => {
-                alert('Ошибка сети: ' + error);
-                document.getElementById('confirmDialog').style.display = 'none';
-            });
-        });
-        
-        // Обработка кнопки отмены
-        document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-            document.getElementById('confirmDialog').style.display = 'none';
-            currentDeleteId = null;
-        });
-        
-        // Закрытие диалога при клике на фон
-        document.getElementById('confirmDialog').addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.style.display = 'none';
-                currentDeleteId = null;
-            }
-        });
-
-
-        // Новые функции для работы с сортировкой и выделением
-
-// Загружает отсортированные пасты и обновляет список
-async function loadSortedPastes() {
-    const order = document.getElementById('sortOrder').value;
+    let currentDeleteId = null;
     
-    try {
-        const response = await fetch(`/api/pastes/sorted?order=${order}`);
-        const data = await response.json();
-        
-        if (data.success) {
-            // Обновляем список ссылок в столбике
-            const linksList = document.getElementById('linksList');
-            linksList.innerHTML = '';
-            
-            data.pastes.forEach(paste => {
-                const linkDiv = document.createElement('div');
-                linkDiv.className = 'link-item';
-                linkDiv.style.cssText = `
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 8px;
-                    border-bottom: 1px solid #eee;
-                `;
-                
-                linkDiv.innerHTML = `
-                    <input type="checkbox" 
-                           class="paste-checkbox-list" 
-                           value="${paste.id}"
-                           onchange="updateSelectedCount()"
-                           style="flex-shrink: 0;">
-                    <span style="flex-grow: 1;">
-                        <span style="color: #666; font-size: 12px;">${paste.created_at}</span><br>
-                        <a href="${paste.view_url}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                            ${paste.view_url}
-                        </a>
-                    </span>
-                    <button class="copy-btn" onclick="copyToClipboard('${paste.view_url}', this)" style="flex-shrink: 0;">
-                        Копировать
-                    </button>
-                `;
-                
-                linksList.appendChild(linkDiv);
-            });
-            
-            // Также обновляем таблицу
-            updateTableWithPastes(data.pastes);
-        }
-    } catch (error) {
-        console.error('Ошибка при загрузке отсортированных записей:', error);
-        alert('Ошибка при загрузке данных');
-    }
-}
-
-// Обновляет таблицу с новыми данными
-function updateTableWithPastes(pastes) {
-    const tbody = document.getElementById('pastesTableBody');
-    if (!tbody) return;
-    
-    tbody.innerHTML = '';
-    
-    pastes.forEach(paste => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>
-                <input type="checkbox" 
-                       class="paste-checkbox" 
-                       value="${paste.id}"
-                       onchange="updateSelectedCount()">
-            </td>
-            <td><code>${paste.id}</code></td>
-            <td>${paste.created_at}</td>
-            <td class="preview" title="${paste.preview}">${paste.preview}</td>
-            
-            <td class="link-cell">
-                <div class="tooltip">
-                    <a href="${paste.view_url}" class="link" target="_blank">
-                        ${paste.view_url.replace(/^https?:\/\/[^\/]+/, '')}
-                    </a>
-                    <span class="tooltiptext">Открыть в браузере</span>
-                </div>
-                <button class="copy-btn" onclick="copyToClipboard('${paste.view_url}', this)">
-                    Копировать
-                </button>
-            </td>
-            
-            <td class="link-cell">
-                <div class="tooltip">
-                    <a href="${paste.raw_url}" class="link" target="_blank">
-                        ${paste.raw_url.replace(/^https?:\/\/[^\/]+/, '')}
-                    </a>
-                    <span class="tooltiptext">Сырой текст (для анализа)</span>
-                </div>
-                <button class="copy-btn" onclick="copyToClipboard('${paste.raw_url}', this)">
-                    Копировать
-                </button>
-            </td>
-            
-            <td>
-                <button class="delete-btn" onclick="confirmDelete('${paste.id}')">
-                    Удалить
-                </button>
-            </td>
-        `;
-        
-        tbody.appendChild(row);
-    });
-}
-
-// Выделить все записи
-function selectAllPastes() {
-    const checkboxes = document.querySelectorAll('.paste-checkbox, .paste-checkbox-list');
-    checkboxes.forEach(cb => cb.checked = true);
-    updateSelectedCount();
-}
-
-// Снять выделение со всех записей
-function deselectAllPastes() {
-    const checkboxes = document.querySelectorAll('.paste-checkbox, .paste-checkbox-list');
-    checkboxes.forEach(cb => cb.checked = false);
-    updateSelectedCount();
-}
-
-// Копирование выделенных ссылок
-function copySelectedLinks(type) {
-    const selectedIds = getSelectedPasteIds();
-    if (selectedIds.length === 0) {
-        alert('Сначала выделите записи!');
-        return;
-    }
-    
-    const baseUrl = '{{ request.host_url.rstrip("/") }}';
-    let links = '';
-    
-    if (type === 'view') {
-        links = selectedIds.map(id => `${baseUrl}/view/${id}`).join('\n');
-    } else {
-        links = selectedIds.map(id => `${baseUrl}/raw/${id}`).join('\n');
-    }
-    
-    copyToClipboard(links, null);
-    alert(`Скопировано ${selectedIds.length} ссылок:\n\n${links.substring(0, 200)}${links.length > 200 ? '...' : ''}`);
-}
-
-// Получить ID выделенных записей
-function getSelectedPasteIds() {
-    const checkboxes = document.querySelectorAll('.paste-checkbox:checked, .paste-checkbox-list:checked');
-    return Array.from(checkboxes).map(cb => cb.value);
-}
-
-// Обновить счётчик выделенных
-function updateSelectedCount() {
-    const count = getSelectedPasteIds().length;
-    document.getElementById('selectedCount').textContent = `Выделено: ${count}`;
-}
-
-// Улучшенная функция копирования
-function copyToClipboard(text, buttonElement) {
-    navigator.clipboard.writeText(text).then(() => {
-        if (buttonElement) {
+    // Функция копирования в буфер обмена
+    function copyToClipboard(text, buttonElement) {
+        navigator.clipboard.writeText(text).then(() => {
+            // Визуальная обратная связь
             const originalText = buttonElement.textContent;
             buttonElement.textContent = 'Скопировано!';
             buttonElement.classList.add('copied');
@@ -622,29 +364,321 @@ function copyToClipboard(text, buttonElement) {
                 buttonElement.textContent = originalText;
                 buttonElement.classList.remove('copied');
             }, 1500);
-        }
-    }).catch(err => {
-        console.error('Ошибка копирования: ', err);
-        alert('Не удалось скопировать ссылку');
-    });
-}
-
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', function() {
-    loadSortedPastes(); // Загружаем с сортировкой по умолчанию
-    updateSelectedCount(); // Инициализируем счётчик
-});
-        
-        // Автоматическое копирование при клике на ссылку (опционально)
-        document.querySelectorAll('.link-cell .link').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Можно добавить автоматическое копирование при клике на саму ссылку
-                // copyToClipboard(this.href, this.nextElementSibling);
-            });
+        }).catch(err => {
+            console.error('Ошибка копирования: ', err);
+            alert('Не удалось скопировать ссылку');
         });
-    </script>
+    }
+    
+    // Обработка создания новой записи
+    document.getElementById('createForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('/create', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('result').innerHTML = `
+                    <h4>Запись создана!</h4>
+                    <p><strong>Ссылка с оформлением:</strong> 
+                    <a href="${data.view_url}" target="_blank">${data.view_url}</a>
+                    <button class="copy-btn" onclick="copyToClipboard('${data.view_url}', this)">Копировать</button></p>
+                    <p><strong>Сырая ссылка (без оформления):</strong> 
+                    <a href="${data.raw_url}" target="_blank">${data.raw_url}</a>
+                    <button class="copy-btn" onclick="copyToClipboard('${data.raw_url}', this)">Копировать</button></p>
+                    <p><em>Обновите страницу, чтобы увидеть новую запись в списке.</em></p>
+                `;
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('content').value = '';
+                
+                // Автоматическое обновление через 3 секунды
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            }
+        })
+        .catch(error => {
+            document.getElementById('result').innerHTML = `<p style="color: red;">Ошибка: ${error}</p>`;
+            document.getElementById('result').style.display = 'block';
+        });
+    });
+    
+    // Подтверждение удаления
+    function confirmDelete(pasteId) {
+        currentDeleteId = pasteId;
+        document.getElementById('deleteId').textContent = pasteId;
+        document.getElementById('confirmDialog').style.display = 'flex';
+    }
+    
+    // Обработка кнопки подтверждения удаления
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (!currentDeleteId) return;
+        
+        fetch('/api/delete/' + currentDeleteId, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Запись успешно удалена!');
+                location.reload();
+            } else {
+                alert('Ошибка: ' + (data.error || 'Не удалось удалить запись'));
+                document.getElementById('confirmDialog').style.display = 'none';
+            }
+        })
+        .catch(error => {
+            alert('Ошибка сети: ' + error);
+            document.getElementById('confirmDialog').style.display = 'none';
+        });
+    });
+    
+    // Обработка кнопки отмены
+    document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+        document.getElementById('confirmDialog').style.display = 'none';
+        currentDeleteId = null;
+    });
+    
+    // Закрытие диалога при клике на фон
+    document.getElementById('confirmDialog').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.style.display = 'none';
+            currentDeleteId = null;
+        }
+    });
+
+    // Новые функции для работы с сортировкой и выделением
+
+    // Загружает отсортированные пасты и обновляет список
+    async function loadSortedPastes() {
+        const order = document.getElementById('sortOrder').value;
+        
+        try {
+            const response = await fetch(`/api/pastes/sorted?order=${order}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                // Обновляем список ссылок в столбике
+                const linksList = document.getElementById('linksList');
+                linksList.innerHTML = '';
+                
+                data.pastes.forEach(paste => {
+                    const linkDiv = document.createElement('div');
+                    linkDiv.className = 'link-item';
+                    linkDiv.style.cssText = `
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 8px;
+                        border-bottom: 1px solid #eee;
+                    `;
+                    
+                    linkDiv.innerHTML = `
+                        <input type="checkbox" 
+                               class="paste-checkbox-list" 
+                               value="${paste.id}"
+                               data-paste-id="${paste.id}"
+                               onchange="updateSelectedCount()"
+                               style="flex-shrink: 0;">
+                        <span style="flex-grow: 1;">
+                            <span style="color: #666; font-size: 12px;">${paste.created_at}</span><br>
+                            <a href="${paste.view_url}" target="_blank" style="color: #2196F3; text-decoration: none;">
+                                ${paste.view_url}
+                            </a>
+                        </span>
+                        <button class="copy-btn" onclick="copyToClipboard('${paste.view_url}', this)" style="flex-shrink: 0;">
+                            Копировать
+                        </button>
+                    `;
+                    
+                    linksList.appendChild(linkDiv);
+                });
+                
+                // Также обновляем таблицу
+                updateTableWithPastes(data.pastes);
+            }
+        } catch (error) {
+            console.error('Ошибка при загрузке отсортированных записей:', error);
+            alert('Ошибка при загрузке данных');
+        }
+    }
+
+    // Обновляет таблицу с новыми данными
+    function updateTableWithPastes(pastes) {
+        const tbody = document.getElementById('pastesTableBody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        pastes.forEach(paste => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <input type="checkbox" 
+                           class="paste-checkbox" 
+                           value="${paste.id}"
+                           data-paste-id="${paste.id}"
+                           onchange="updateSelectedCount()">
+                </td>
+                <td><code>${paste.id}</code></td>
+                <td>${paste.created_at}</td>
+                <td class="preview" title="${paste.preview}">${paste.preview}</td>
+                
+                <td class="link-cell">
+                    <div class="tooltip">
+                        <a href="${paste.view_url}" class="link" target="_blank">
+                            ${paste.view_url.replace(/^https?:\/\/[^\/]+/, '')}
+                        </a>
+                        <span class="tooltiptext">Открыть в браузере</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('${paste.view_url}', this)">
+                        Копировать
+                    </button>
+                </td>
+                
+                <td class="link-cell">
+                    <div class="tooltip">
+                        <a href="${paste.raw_url}" class="link" target="_blank">
+                            ${paste.raw_url.replace(/^https?:\/\/[^\/]+/, '')}
+                        </a>
+                        <span class="tooltiptext">Сырой текст (для анализа)</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('${paste.raw_url}', this)">
+                        Копировать
+                    </button>
+                </td>
+                
+                <td>
+                    <button class="delete-btn" onclick="confirmDelete('${paste.id}')">
+                        Удалить
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+
+    // ВЫДЕЛЕНИЕ: Теперь работает только с одним типом чекбоксов
+    function selectAllPastes() {
+        // Выбираем только основные чекбоксы (из таблицы)
+        const checkboxes = document.querySelectorAll('.paste-checkbox');
+        checkboxes.forEach(cb => cb.checked = true);
+        
+        // Синхронизируем чекбоксы в списке
+        syncCheckboxStates();
+        updateSelectedCount();
+    }
+
+    function deselectAllPastes() {
+        // Снимаем выделение только с основных чекбоксов
+        const checkboxes = document.querySelectorAll('.paste-checkbox');
+        checkboxes.forEach(cb => cb.checked = false);
+        
+        // Синхронизируем чекбоксы в списке
+        syncCheckboxStates();
+        updateSelectedCount();
+    }
+
+    // Синхронизирует состояния чекбоксов между таблицей и списком
+    function syncCheckboxStates() {
+        const mainCheckboxes = document.querySelectorAll('.paste-checkbox');
+        mainCheckboxes.forEach(mainCb => {
+            const pasteId = mainCb.dataset.pasteId;
+            const listCb = document.querySelector(`.paste-checkbox-list[data-paste-id="${pasteId}"]`);
+            if (listCb) {
+                listCb.checked = mainCb.checked;
+            }
+        });
+    }
+
+    // Копирование выделенных ссылок
+    function copySelectedLinks(type) {
+        const selectedIds = getSelectedPasteIds();
+        if (selectedIds.length === 0) {
+            alert('Сначала выделите записи!');
+            return;
+        }
+        
+        const baseUrl = '{{ request.host_url.rstrip("/") }}';
+        let links = '';
+        
+        if (type === 'view') {
+            links = selectedIds.map(id => `${baseUrl}/view/${id}`).join('\n');
+        } else {
+            links = selectedIds.map(id => `${baseUrl}/raw/${id}`).join('\n');
+        }
+        
+        copyToClipboard(links, null);
+        alert(`Скопировано ${selectedIds.length} ссылок:\n\n${links.substring(0, 200)}${links.length > 200 ? '...' : ''}`);
+    }
+
+    // Получить ID выделенных записей (только уникальные, без дубликатов)
+    function getSelectedPasteIds() {
+        const checkboxes = document.querySelectorAll('.paste-checkbox:checked');
+        const selectedIds = new Set();
+        
+        checkboxes.forEach(cb => {
+            if (cb.dataset.pasteId) {
+                selectedIds.add(cb.dataset.pasteId);
+            } else {
+                selectedIds.add(cb.value);
+            }
+        });
+        
+        return Array.from(selectedIds);
+    }
+
+    // Обновить счётчик выделенных
+    function updateSelectedCount() {
+        const count = getSelectedPasteIds().length;
+        document.getElementById('selectedCount').textContent = `Выделено: ${count}`;
+        
+        // Синхронизируем состояния чекбоксов
+        syncCheckboxStates();
+    }
+
+    // Улучшенная функция копирования
+    function copyToClipboard(text, buttonElement) {
+        navigator.clipboard.writeText(text).then(() => {
+            if (buttonElement) {
+                const originalText = buttonElement.textContent;
+                buttonElement.textContent = 'Скопировано!';
+                buttonElement.classList.add('copied');
+                
+                setTimeout(() => {
+                    buttonElement.textContent = originalText;
+                    buttonElement.classList.remove('copied');
+                }, 1500);
+            }
+        }).catch(err => {
+            console.error('Ошибка копирования: ', err);
+            alert('Не удалось скопировать ссылку');
+        });
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        loadSortedPastes(); // Загружаем с сортировкой по умолчанию
+        updateSelectedCount(); // Инициализируем счётчик
+    });
+    
+    // Автоматическое копирование при клике на ссылку (опционально)
+    document.querySelectorAll('.link-cell .link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Можно добавить автоматическое копирование при клике на саму ссылку
+            // copyToClipboard(this.href, this.nextElementSibling);
+        });
+    });
+</script>
 </body>
 </html>
+
 
 
 
