@@ -232,6 +232,8 @@ button {
                 <option value="asc">Сначала старые</option>
             </select>
         </div>
+
+      
         
         <!-- Выделение -->
         <div>
@@ -330,6 +332,12 @@ button {
             alert('Не удалось скопировать ссылку');
         });
     }
+
+          // Обработчик изменения сортировки
+document.getElementById('sortOrder').addEventListener('change', function() {
+    // При смене сортировки загружаем первую страницу
+    loadPaginatedData(1, this.value);
+});
     
     // Обработка создания новой записи
     document.getElementById('createForm').addEventListener('submit', function(e) {
@@ -498,6 +506,183 @@ button {
         syncCheckboxStates();
     }
 
+        // ==================== AJAX ПАГИНАЦИЯ ====================
+
+// Основная функция загрузки данных
+async function loadPaginatedData(page = 1, order = 'desc') {
+    // Показываем сообщение о загрузке
+    document.getElementById('loadingMessage').style.display = 'block';
+    document.getElementById('pastesTable').style.display = 'none';
+    document.getElementById('noPastesMessage').style.display = 'none';
+    document.getElementById('paginationContainer').style.display = 'none';
+    
+    try {
+        // Делаем AJAX-запрос к нашему API
+        const response = await fetch(`/api/pastes/paginated?page=${page}&order=${order}`);
+        const data = await response.json();
+        
+        // Проверяем успешность
+        if (!data.success) {
+            throw new Error(data.error || 'Ошибка загрузки данных');
+        }
+        
+        // Обновляем таблицу с полученными данными
+        updateTableWithData(data.pastes);
+        
+        // Обновляем пагинацию
+        updatePagination(data.current_page, data.total_pages, data.total_pastes, data.order);
+        
+        // Обновляем сортировку в выпадающем списке
+        document.getElementById('sortOrder').value = data.order;
+        
+        // Прячем сообщение о загрузке, показываем таблицу
+        document.getElementById('loadingMessage').style.display = 'none';
+        document.getElementById('pastesTable').style.display = 'table';
+        
+        // Если записей нет - показываем сообщение
+        if (data.pastes.length === 0) {
+            document.getElementById('noPastesMessage').style.display = 'block';
+            document.getElementById('pastesTable').style.display = 'none';
+        } else {
+            document.getElementById('paginationContainer').style.display = 'block';
+        }
+        
+        // Обновляем счетчик выделенных (обнуляем)
+        updateSelectedCount();
+        
+    } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+        document.getElementById('loadingMessage').innerHTML = 
+            `<span style="color: red;">❌ Ошибка загрузки: ${error.message}</span>`;
+    }
+}
+
+        // Функция обновления таблицы с данными
+function updateTableWithData(pastes) {
+    const tbody = document.getElementById('pastesTableBody');
+    
+    // Очищаем таблицу
+    tbody.innerHTML = '';
+    
+    // Если записей нет - выходим
+    if (pastes.length === 0) return;
+    
+    // Для каждой записи создаем строку таблицы
+    pastes.forEach(paste => {
+        const row = document.createElement('tr');
+        
+        // Формируем HTML для строки (аналогично старой версии)
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" 
+                       class="paste-checkbox" 
+                       value="${paste.id}"
+                       data-paste-id="${paste.id}"
+                       onchange="updateSelectedCount()">
+            </td>
+            <td><code>${paste.id}</code></td>
+            <td>${paste.created_at}</td>
+            <td class="preview" title="${paste.preview}">${paste.preview}</td>
+            <td class="link-cell">
+                <div class="tooltip">
+                    <a href="${paste.view_url}" class="link" target="_blank">
+                        ${paste.view_url.replace(/^https?:\/\/[^\/]+/, '')}
+                    </a>
+                    <span class="tooltiptext">Открыть в браузере</span>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard('${paste.view_url}', this)">
+                    Копировать
+                </button>
+            </td>
+            <td class="link-cell">
+                <div class="tooltip">
+                    <a href="${paste.raw_url}" class="link" target="_blank">
+                        ${paste.raw_url.replace(/^https?:\/\/[^\/]+/, '')}
+                    </a>
+                    <span class="tooltiptext">Сырой текст (для анализа)</span>
+                </div>
+                <button class="copy-btn" onclick="copyToClipboard('${paste.raw_url}', this)">
+                    Копировать
+                </button>
+            </td>
+            <td>
+                <button class="delete-btn" onclick="confirmDelete('${paste.id}')">
+                    Удалить
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
+        // Функция обновления пагинации
+function updatePagination(currentPage, totalPages, totalPastes, order) {
+    const pageInfo = document.getElementById('pageInfo');
+    const paginationButtons = document.getElementById('paginationButtons');
+    
+    // Обновляем информацию о странице
+    pageInfo.innerHTML = `
+        Страница ${currentPage} из ${totalPages} | Всего записей: ${totalPastes}
+    `;
+    
+    // Очищаем кнопки пагинации
+    paginationButtons.innerHTML = '';
+    
+    // Если всего 1 страница - не показываем пагинацию
+    if (totalPages <= 1) {
+        document.getElementById('paginationContainer').style.display = 'none';
+        return;
+    }
+    
+    // Кнопка "Первая" и "Назад"
+    if (currentPage > 1) {
+        const firstBtn = createPageButton('« Первая', 1, order, currentPage);
+        const prevBtn = createPageButton('‹ Назад', currentPage - 1, order, currentPage);
+        paginationButtons.appendChild(firstBtn);
+        paginationButtons.appendChild(prevBtn);
+    }
+    
+    // Номера страниц (показываем +/- 2 от текущей)
+    const startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, currentPage + 2);
+    
+    for (let pageNum = startPage; pageNum <= endPage; pageNum++) {
+        const pageBtn = createPageButton(pageNum, pageNum, order, currentPage);
+        paginationButtons.appendChild(pageBtn);
+    }
+    
+    // Кнопка "Вперед" и "Последняя"
+    if (currentPage < totalPages) {
+        const nextBtn = createPageButton('Вперед ›', currentPage + 1, order, currentPage);
+        const lastBtn = createPageButton('Последняя »', totalPages, order, currentPage);
+        paginationButtons.appendChild(nextBtn);
+        paginationButtons.appendChild(lastBtn);
+    }
+}
+
+// Вспомогательная функция создания кнопки страницы
+function createPageButton(text, pageNum, order, currentPage) {
+    const button = document.createElement('a');
+    button.href = '#';
+    button.textContent = text;
+    
+    if (pageNum === currentPage) {
+        // Текущая страница - выделяем
+        button.style.cssText = 'padding: 8px 12px; background: #4CAF50; color: white; border: 1px solid #4CAF50; text-decoration: none;';
+        button.onclick = (e) => e.preventDefault(); // Запрещаем переход
+    } else {
+        // Обычная кнопка
+        button.style.cssText = 'padding: 8px 12px; border: 1px solid #ddd; text-decoration: none; color: #333;';
+        button.onclick = (e) => {
+            e.preventDefault();
+            loadPaginatedData(pageNum, order);
+        };
+    }
+    
+    return button;
+}
+
     // Улучшенная функция копирования
     function copyToClipboard(text, buttonElement) {
         navigator.clipboard.writeText(text).then(() => {
@@ -518,9 +703,11 @@ button {
     }
 
     // Инициализация при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-               updateSelectedCount(); // Инициализируем счётчик
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    // Загружаем первую страницу при открытии админки
+    loadPaginatedData(1, 'desc');
+    updateSelectedCount();
+});
     
     // Автоматическое копирование при клике на ссылку (опционально)
     document.querySelectorAll('.link-cell .link').forEach(link => {
@@ -545,6 +732,7 @@ button {
     
 </body>
 </html>
+
 
 
 
