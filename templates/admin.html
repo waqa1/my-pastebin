@@ -173,63 +173,121 @@
     <div id="result" class="result-box" style="display: none;"></div>
     
     <h3>Все загруженные записи:</h3>
-    {% if pastes %}
-        <table class="pastes-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Дата создания</th>
-                    <th>Предпросмотр</th>
-                    <th>Текст (с оформлением)</th>
-                    <th>Текст (без оформления)</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for paste in pastes %}
-                <tr>
-                    <td><code>{{ paste.id }}</code></td>
-                    <td>{{ paste.created_at }}</td>
-                    <td class="preview" title="{{ paste.preview }}">{{ paste.preview }}</td>
-                    
-                    <!-- Столбец для ссылки с оформлением -->
-                    <td class="link-cell">
-                        <div class="tooltip">
-                            <a href="/view/{{ paste.id }}" class="link" target="_blank">
-                                /view/{{ paste.id }}
-                            </a>
-                            <span class="tooltiptext">Открыть в браузере</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}view/{{ paste.id }}', this)">
-                            Копировать
-                        </button>
-                    </td>
-                    
-                    <!-- НОВЫЙ столбец для ссылки без оформления -->
-                    <td class="link-cell">
-                        <div class="tooltip">
-                            <a href="/raw/{{ paste.id }}" class="link" target="_blank">
-                                /raw/{{ paste.id }}
-                            </a>
-                            <span class="tooltiptext">Сырой текст (для анализа)</span>
-                        </div>
-                        <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}raw/{{ paste.id }}', this)">
-                            Копировать
-                        </button>
-                    </td>
-                    
-                    <td>
-                        <button class="delete-btn" onclick="confirmDelete('{{ paste.id }}')">
-                            Удалить
-                        </button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p>Записей пока нет.</p>
-    {% endif %}
+
+<!-- Панель управления -->
+<div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+    <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <!-- Сортировка -->
+        <div>
+            <label>Сортировка:</label>
+            <select id="sortOrder" onchange="loadSortedPastes()">
+                <option value="desc">Сначала новые</option>
+                <option value="asc">Сначала старые</option>
+            </select>
+        </div>
+        
+        <!-- Выделение -->
+        <div>
+            <button onclick="selectAllPastes()">Выделить все</button>
+            <button onclick="deselectAllPastes()">Снять выделение</button>
+        </div>
+        
+        <!-- Копирование выделенных -->
+        <div>
+            <button onclick="copySelectedLinks('view')">Копировать выделенные (/view)</button>
+            <button onclick="copySelectedLinks('raw')">Копировать выделенные (/raw)</button>
+        </div>
+        
+        <!-- Счётчик выделенных -->
+        <div>
+            <span id="selectedCount">Выделено: 0</span>
+        </div>
+    </div>
+</div>
+
+<!-- Контейнер для списка ссылок -->
+<div id="linksColumn" style="
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 20px 0;
+    padding: 15px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    max-height: 500px;
+    overflow-y: auto;
+">
+    <!-- Ссылки будут загружаться здесь -->
+    <div id="linksList"></div>
+</div>
+
+<!-- Таблица остаётся для детального просмотра -->
+<h4>Детальный просмотр:</h4>
+{% if pastes %}
+    <table class="pastes-table">
+        <thead>
+            <tr>
+                <th>Выделить</th>
+                <th>ID</th>
+                <th>Дата создания</th>
+                <th>Предпросмотр</th>
+                <th>Текст (с оформлением)</th>
+                <th>Текст (без оформления)</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody id="pastesTableBody">
+            {% for paste in pastes %}
+            <tr>
+                <td>
+                    <input type="checkbox" 
+                           class="paste-checkbox" 
+                           value="{{ paste.id }}"
+                           onchange="updateSelectedCount()">
+                </td>
+                <td><code>{{ paste.id }}</code></td>
+                <td>{{ paste.created_at }}</td>
+                <td class="preview" title="{{ paste.preview }}">{{ paste.preview }}</td>
+                
+                <!-- Столбец для ссылки с оформлением -->
+                <td class="link-cell">
+                    <div class="tooltip">
+                        <a href="/view/{{ paste.id }}" class="link" target="_blank">
+                            /view/{{ paste.id }}
+                        </a>
+                        <span class="tooltiptext">Открыть в браузере</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}view/{{ paste.id }}', this)">
+                        Копировать
+                    </button>
+                </td>
+                
+                <!-- Столбец для ссылки без оформления -->
+                <td class="link-cell">
+                    <div class="tooltip">
+                        <a href="/raw/{{ paste.id }}" class="link" target="_blank">
+                            /raw/{{ paste.id }}
+                        </a>
+                        <span class="tooltiptext">Сырой текст (для анализа)</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}raw/{{ paste.id }}', this)">
+                        Копировать
+                    </button>
+                </td>
+                
+                <td>
+                    <button class="delete-btn" onclick="confirmDelete('{{ paste.id }}')">
+                        Удалить
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Записей пока нет.</p>
+{% endif %}
     
     <!-- Диалог подтверждения удаления -->
     <div id="confirmDialog" class="confirm-dialog" style="display: none;">
@@ -357,3 +415,4 @@
     </script>
 </body>
 </html>
+
