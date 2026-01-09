@@ -143,22 +143,33 @@ def get_sorted_pastes():
     """Возвращает все пасты, отсортированные по дате"""
     if not session.get('is_admin'):
         return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
-    
+
     order = request.args.get('order', 'desc')  # 'asc' или 'desc'
-    
-    # Убедитесь, что SessionLocal импортирована выше
-    # from database import SessionLocal
-    
-    db = SessionLocal()
+
+    # === ВАЖНОЕ ДОПОЛНЕНИЕ: Проверяем, готова ли база ===
+    # Если SessionLocal почему-то еще не инициализирована, делаем это прямо сейчас.
+    # Добавьте этот импорт в САМОМ НАЧАЛЕ функции:
+    from database import init_db
+    global SessionLocal  # Говорим, что будем использовать глобальную переменную
+
+    if SessionLocal is None:
+        print("[DEBUG] SessionLocal is None! Calling init_db()...", file=sys.stderr)
+        init_db()  # Настраиваем базу
+        # После init_db() нужно снова импортировать SessionLocal
+        from database import SessionLocal, Paste
+
+    # === КОНЕЦ ДОПОЛНЕНИЯ ===
+
+    db = SessionLocal()  # Теперь эта строка должна работать
     try:
         if order == 'asc':
             pastes = db.query(Paste).order_by(Paste.created_at.asc()).all()
         else:
             pastes = db.query(Paste).order_by(Paste.created_at.desc()).all()
-        
+
         result = []
         host_url = request.host_url.rstrip('/')
-        
+
         for paste in pastes:
             result.append({
                 'id': paste.id,
@@ -168,7 +179,7 @@ def get_sorted_pastes():
                 'view_url': f"{host_url}/view/{paste.id}",
                 'raw_url': f"{host_url}/raw/{paste.id}"
             })
-        
+
         return jsonify({
             'success': True,
             'pastes': result,
@@ -229,6 +240,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
