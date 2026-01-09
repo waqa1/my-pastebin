@@ -448,41 +448,7 @@ button {
             const data = await response.json();
             
             if (data.success) {
-                // Обновляем список ссылок в столбике
-                const linksList = document.getElementById('linksList');
-                linksList.innerHTML = '';
                 
-                data.pastes.forEach(paste => {
-                    const linkDiv = document.createElement('div');
-                    linkDiv.className = 'link-item';
-                    linkDiv.style.cssText = `
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                        padding: 8px;
-                        border-bottom: 1px solid #eee;
-                    `;
-                    
-                    linkDiv.innerHTML = `
-                        <input type="checkbox" 
-                               class="paste-checkbox-list" 
-                               value="${paste.id}"
-                               data-paste-id="${paste.id}"
-                               onchange="updateSelectedCount()"
-                               style="flex-shrink: 0;">
-                        <span style="flex-grow: 1;">
-                            <span style="color: #666; font-size: 12px;">${paste.created_at}</span><br>
-                            <a href="${paste.view_url}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                                ${paste.view_url}
-                            </a>
-                        </span>
-                        <button class="copy-btn" onclick="copyToClipboard('${paste.view_url}', this)" style="flex-shrink: 0;">
-                            Копировать
-                        </button>
-                    `;
-                    
-                    linksList.appendChild(linkDiv);
-                });
                 
                 // Также обновляем таблицу
                 updateTableWithPastes(data.pastes);
@@ -663,6 +629,7 @@ button {
 </script>
 </body>
 </html>
+
 
 
 
