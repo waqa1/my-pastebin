@@ -146,6 +146,9 @@ def get_sorted_pastes():
     
     order = request.args.get('order', 'desc')  # 'asc' или 'desc'
     
+    # Убедитесь, что SessionLocal импортирована выше
+    # from database import SessionLocal
+    
     db = SessionLocal()
     try:
         if order == 'asc':
@@ -154,14 +157,16 @@ def get_sorted_pastes():
             pastes = db.query(Paste).order_by(Paste.created_at.desc()).all()
         
         result = []
+        host_url = request.host_url.rstrip('/')
+        
         for paste in pastes:
             result.append({
                 'id': paste.id,
                 'preview': paste.content[:200] + "..." if len(paste.content) > 200 else paste.content,
                 'created_at': paste.created_at.strftime('%Y-%m-%d %H:%M:%S'),
                 'length': len(paste.content),
-                'view_url': f"{request.host_url.rstrip('/')}/view/{paste.id}",
-                'raw_url': f"{request.host_url.rstrip('/')}/raw/{paste.id}"
+                'view_url': f"{host_url}/view/{paste.id}",
+                'raw_url': f"{host_url}/raw/{paste.id}"
             })
         
         return jsonify({
@@ -224,6 +229,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
