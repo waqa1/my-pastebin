@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Мой Pastebin</title>
+    <title>Pastebian - хранилище текста</title>
      <!-- Favicon -->
     <link rel="icon" href="https://img.icons8.com/color/96/000000/data-backup.png" type="image/png">
     <link rel="shortcut icon" href="https://img.icons8.com/color/96/000000/data-backup.png" type="image/png">
     <style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+        
         body { 
             font-family: Arial, sans-serif; 
             
@@ -323,14 +325,17 @@ button {
   padding: 0 20px; /* Отступы от края экрана */
   max-width: 95%; /* Занимает 95% ширины, но не больше */
   width: 100%;
+      min-height: 100vh; /* Важно для sticky */
 ">
         
         <!-- ЛЕВЫЙ БАННЕР (вертикальный) -->
         <div class="banner-left" style="
-            position: sticky;
-            top: 40px;
-            height: fit-content;
-        ">
+  position: sticky;
+  top: 40px; /* Фиксируем на 40px от верха */
+  align-self: start; /* Сохраняем позицию в гриде */
+  height: fit-content;
+">
+            
            <div style="
     width: 160px;
     height: 600px;
@@ -383,7 +388,7 @@ button {
                     justify-content: center;
                     font-size: 20px;
                 ">📋</span>
-                PASTEBIN
+                PASTEBIAN - тексты хранятся здесь
             </h2>
             
             <a href="/logout" style="
@@ -428,7 +433,7 @@ button {
         
         <!-- Левая часть: Сортировка -->
         <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-weight: 600; font-size: 15px;">📊 Сортировка:</span>
+            <span style="font-weight: 600; font-size: 15px;">Сортировка:</span>
             <select id="sortOrder" style="
                 padding: 8px 16px;
                 border: none;
@@ -441,8 +446,8 @@ button {
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 transition: all 0.3s ease;
             ">
-                <option value="desc">🆕 Сначала новые</option>
-                <option value="asc">🕰️ Сначала старые</option>
+                <option value="desc">Сначала новые</option>
+                <option value="asc">Сначала старые</option>
             </select>
         </div>
         
@@ -628,7 +633,7 @@ button {
                     <span>⏱️ Время работы: <span id="uptime">0д 0ч</span></span>
                 </div>
                 <div>
-                    © 2026 My Pastebin | 
+                    © 2026 My Pastebian | 
                     <a href="#" style="color: #667eea; text-decoration: none;">Политика конфиденциальности</a> | 
                     <a href="#" style="color: #667eea; text-decoration: none;">Условия использования</a>
                 </div>
@@ -639,11 +644,14 @@ button {
         <!-- КОНЕЦ ЦЕНТРАЛЬНОЙ ЧАСТИ -->
 
  <!-- ПРАВЫЙ БАННЕР (вертикальный) -->
-        <div class="banner-right" style="
-            position: sticky;
-            top: 40px;
-            height: fit-content;
-        ">
+      <div class="banner-right" style="
+  position: sticky;
+  top: 40px;
+  align-self: start;
+  height: fit-content;
+  margin-left: 20px; /* Дополнительный отступ */
+  z-index: 10;
+">
             <!-- Баннер 1 -->
             <div style="
     width: 160px;
@@ -1156,6 +1164,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
+
 
 
 
