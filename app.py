@@ -22,22 +22,21 @@ def admin():
                 return "Неверный пароль", 403
         return render_template('create.html')
     
-    # Получаем номер страницы
+    # ПАГИНАЦИЯ: получаем номер страницы
     page = request.args.get('page', 1, type=int)
     per_page = 10
     
-    # Получаем данные из базы
     db = SessionLocal()
     
-    # Общее количество записей
+    # 1. Получаем общее количество записей
     total_pastes = db.query(Paste).count()
     
-    # Записи для текущей страницы
+    # 2. Получаем 10 записей для текущей страницы
     pastes = db.query(Paste).order_by(Paste.created_at.desc()) \
                            .offset((page - 1) * per_page) \
                            .limit(per_page).all()
     
-    # Формируем список как раньше
+    # 3. Формируем данные для таблицы (как раньше)
     result = []
     host_url = request.host_url.rstrip('/')
     
@@ -54,10 +53,10 @@ def admin():
     
     db.close()
     
-    # Вычисляем общее количество страниц
+    # 4. Вычисляем общее количество страниц
     total_pages = max(1, (total_pastes + per_page - 1) // per_page)
     
-    # Передаем ВСЕ необходимые переменные в шаблон
+    # 5. Передаем ВСЕ переменные в шаблон
     return render_template('admin.html', 
                          pastes=result,
                          current_page=page,
@@ -258,6 +257,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
