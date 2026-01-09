@@ -151,7 +151,7 @@ def clean_text_for_output(text):
     for char in text:
         code = ord(char)
         # Разрешаем: табуляция (\t=9), перенос строки (\n=10), обычные символы
-        if code == 9 or code == 10 or (code >= 32 and code != 127):
+        if code == 9 or code == 10 or (code >= 32 and code != 127): or code > 127:
             cleaned.append(char)
         else:
             # Заменяем проблемные символы на пробел или удаляем
@@ -178,4 +178,5 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
