@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response, make_response
-from database import init_db, add_paste, get_all_pastes, get_paste, delete_paste, get_pastes_by_ids, SessionLocal  # Добавлен SessionLocal
+from database import init_db, add_paste, get_all_pastes, get_paste, delete_paste, get_pastes_by_ids, SessionLocal, Paste
 from auth import check_password
 from datetime import datetime
 import sys
@@ -229,6 +229,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
