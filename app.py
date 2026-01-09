@@ -26,42 +26,62 @@ def admin():
     page = request.args.get('page', 1, type=int)
     per_page = 10
     
+    # ВАЖНО: импортируем и проверяем инициализацию базы
+    from database import SessionLocal, Paste, init_db
+    
+    # Если SessionLocal не инициализирована
+    if SessionLocal is None:
+        print("[DEBUG] Инициализируем базу данных...", file=sys.stderr)
+        init_db()
+        # После init_db() нужно снова импортировать
+        from database import SessionLocal, Paste
+    
     db = SessionLocal()
     
-    # 1. Получаем общее количество записей
-    total_pastes = db.query(Paste).count()
-    
-    # 2. Получаем 10 записей для текущей страницы
-    pastes = db.query(Paste).order_by(Paste.created_at.desc()) \
-                           .offset((page - 1) * per_page) \
-                           .limit(per_page).all()
-    
-    # 3. Формируем данные для таблицы (как раньше)
-    result = []
-    host_url = request.host_url.rstrip('/')
-    
-    for paste in pastes:
-        preview = paste.content[:200] + "..." if len(paste.content) > 200 else paste.content
-        result.append({
-            'id': paste.id,
-            'preview': preview,
-            'created_at': paste.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            'length': len(paste.content),
-            'view_url': f"{host_url}/view/{paste.id}",
-            'raw_url': f"{host_url}/raw/{paste.id}"
-        })
-    
-    db.close()
-    
-    # 4. Вычисляем общее количество страниц
-    total_pages = max(1, (total_pastes + per_page - 1) // per_page)
-    
-    # 5. Передаем ВСЕ переменные в шаблон
-    return render_template('admin.html', 
-                         pastes=result,
-                         current_page=page,
-                         total_pages=total_pages,
-                         total_pastes=total_pastes)
+    try:
+        # 1. Получаем общее количество записей
+        total_pastes = db.query(Paste).count()
+        
+        # 2. Получаем 10 записей для текущей страницы
+        pastes = db.query(Paste).order_by(Paste.created_at.desc()) \
+                               .offset((page - 1) * per_page) \
+                               .limit(per_page).all()
+        
+        # 3. Формируем данные для таблицы
+        result = []
+        host_url = request.host_url.rstrip('/')
+        
+        for paste in pastes:
+            preview = paste.content[:200] + "..." if len(paste.content) > 200 else paste.content
+            result.append({
+                'id': paste.id,
+                'preview': preview,
+                'created_at': paste.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'length': len(paste.content),
+                'view_url': f"{host_url}/view/{paste.id}",
+                'raw_url': f"{host_url}/raw/{paste.id}"
+            })
+        
+        # 4. Вычисляем общее количество страниц
+        total_pages = max(1, (total_pastes + per_page - 1) // per_page)
+        
+        return render_template('admin.html', 
+                             pastes=result,
+                             current_page=page,
+                             total_pages=total_pages,
+                             total_pastes=total_pastes)
+        
+    except Exception as e:
+        print(f"Ошибка в функции admin(): {e}", file=sys.stderr)
+        # Если ошибка, возвращаем пустой список
+        return render_template('admin.html', 
+                             pastes=[],
+                             current_page=1,
+                             total_pages=1,
+                             total_pastes=0)
+    finally:
+        if db:
+            db.close()
 
 @app.route('/create', methods=['POST'])
 def create():
@@ -257,6 +277,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
