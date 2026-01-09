@@ -255,71 +255,31 @@ button {
 
 
 <!-- Таблица остаётся для детального просмотра -->
-<h4>Детальный просмотр:</h4>
-{% if pastes %}
-    <table class="pastes-table">
-        <thead>
-            <tr>
-                <th>V</th>
-                <th>ID</th>
-                <th>Дата создания</th>
-                <th>Предпросмотр</th>
-                <th>Текст (с оформлением)</th>
-                <th>Текст (без оформления)</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody id="pastesTableBody">
-            {% for paste in pastes %}
-            <tr>
-                <td>
-                    <input type="checkbox" 
-                           class="paste-checkbox" 
-                           value="{{ paste.id }}"
-                           onchange="updateSelectedCount()">
-                </td>
-                <td><code>{{ paste.id }}</code></td>
-                <td>{{ paste.created_at }}</td>
-                <td class="preview" title="{{ paste.preview }}">{{ paste.preview }}</td>
-                
-                <!-- Столбец для ссылки с оформлением -->
-                <td class="link-cell">
-                    <div class="tooltip">
-                        <a href="/view/{{ paste.id }}" class="link" target="_blank">
-                            /view/{{ paste.id }}
-                        </a>
-                        <span class="tooltiptext">Открыть в браузере</span>
-                    </div>
-                    <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}view/{{ paste.id }}', this)">
-                        Копировать
-                    </button>
-                </td>
-                
-                <!-- Столбец для ссылки без оформления -->
-                <td class="link-cell">
-                    <div class="tooltip">
-                        <a href="/raw/{{ paste.id }}" class="link" target="_blank">
-                            /raw/{{ paste.id }}
-                        </a>
-                        <span class="tooltiptext">Сырой текст (для анализа)</span>
-                    </div>
-                    <button class="copy-btn" onclick="copyToClipboard('{{ request.host_url }}raw/{{ paste.id }}', this)">
-                        Копировать
-                    </button>
-                </td>
-                
-                <td>
-                    <button class="delete-btn" onclick="confirmDelete('{{ paste.id }}')">
-                        Удалить
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-{% else %}
-    <p>Записей пока нет.</p>
-{% endif %}
+<!-- Таблица записей (будет заполняться через AJAX) -->
+<div id="loadingMessage" style="text-align: center; padding: 40px; color: #666;">
+    ⏳ Загрузка записей...
+</div>
+
+<table class="pastes-table" id="pastesTable" style="display: none;">
+    <thead>
+        <tr>
+            <th>Выделить</th>
+            <th>ID</th>
+            <th>Дата создания</th>
+            <th>Предпросмотр</th>
+            <th>Текст (с оформлением)</th>
+            <th>Текст (без оформления)</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody id="pastesTableBody">
+        <!-- Сюда будет вставляться содержимое через JavaScript -->
+    </tbody>
+</table>
+
+<div id="noPastesMessage" style="display: none; text-align: center; padding: 40px; color: #666;">
+    📝 Записей пока нет. Создайте первую!
+</div>
     
     <!-- Диалог подтверждения удаления -->
     <div id="confirmDialog" class="confirm-dialog" style="display: none;">
@@ -691,6 +651,7 @@ button {
     
 </body>
 </html>
+
 
 
 
