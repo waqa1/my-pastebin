@@ -183,6 +183,33 @@
 }
 
 
+        <!-- Добавьте эти стили для hover-эффектов в <style> -->
+
+    /* Эффекты при наведении */
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    select:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* Анимация счетчика при изменении */
+    #selectedCount {
+        transition: all 0.3s ease;
+    }
+    
+    #selectedCount.updated {
+        animation: pulse 0.5s ease;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+
 /* Декоративные элементы */
 .decorative-circle {
     position: fixed;
@@ -326,7 +353,7 @@ button {
   max-width: 95%; /* Занимает 95% ширины, но не больше */
   width: 100%;
       min-height: 100vh; /* Важно для sticky */
-">
+"></div>
         
         <!-- ЛЕВЫЙ БАННЕР (вертикальный) -->
         <div class="banner-left" style="
@@ -548,33 +575,8 @@ button {
     </div>
 </div>
 
-<!-- Добавьте эти стили для hover-эффектов в <style> -->
-<style>
-    /* Эффекты при наведении */
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
-    }
-    
-    select:hover {
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
-    }
-    
-    /* Анимация счетчика при изменении */
-    #selectedCount {
-        transition: all 0.3s ease;
-    }
-    
-    #selectedCount.updated {
-        animation: pulse 0.5s ease;
-    }
-    
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
-    }
-</style>
+
+
 
 
 
@@ -1016,7 +1018,7 @@ function updateTableWithData(pastes) {
         tbody.appendChild(row);
     });
 }
-
+    </div>
         // Функция обновления пагинации
 function updatePagination(currentPage, totalPages, totalPastes, order) {
     const pageInfo = document.getElementById('pageInfo');
@@ -1164,6 +1166,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
+
 
 
 
