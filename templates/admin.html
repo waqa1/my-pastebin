@@ -415,81 +415,9 @@ button {
 
     // Новые функции для работы с сортировкой и выделением
 
-    // Загружает отсортированные пасты и обновляет список
-    async function loadSortedPastes() {
-        const order = document.getElementById('sortOrder').value;
-        
-        try {
-            const response = await fetch(`/api/pastes/sorted?order=${order}`);
-            const data = await response.json();
-            
-            if (data.success) {
-                
-                
-                // Также обновляем таблицу
-                updateTableWithPastes(data.pastes);
-            }
-        } catch (error) {
-            console.error('Ошибка при загрузке отсортированных записей:', error);
-            alert('Ошибка при загрузке данных');
-        }
-    }
+    
 
-    // Обновляет таблицу с новыми данными
-    function updateTableWithPastes(pastes) {
-        const tbody = document.getElementById('pastesTableBody');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
-        
-        pastes.forEach(paste => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <input type="checkbox" 
-                           class="paste-checkbox" 
-                           value="${paste.id}"
-                           data-paste-id="${paste.id}"
-                           onchange="updateSelectedCount()">
-                </td>
-                <td><code>${paste.id}</code></td>
-                <td>${paste.created_at}</td>
-                <td class="preview" title="${paste.preview}">${paste.preview}</td>
-                
-                <td class="link-cell">
-                    <div class="tooltip">
-                        <a href="${paste.view_url}" class="link" target="_blank">
-                            ${paste.view_url.replace(/^https?:\/\/[^\/]+/, '')}
-                        </a>
-                        <span class="tooltiptext">Открыть в браузере</span>
-                    </div>
-                    <button class="copy-btn" onclick="copyToClipboard('${paste.view_url}', this)">
-                        Копировать
-                    </button>
-                </td>
-                
-                <td class="link-cell">
-                    <div class="tooltip">
-                        <a href="${paste.raw_url}" class="link" target="_blank">
-                            ${paste.raw_url.replace(/^https?:\/\/[^\/]+/, '')}
-                        </a>
-                        <span class="tooltiptext">Сырой текст (для анализа)</span>
-                    </div>
-                    <button class="copy-btn" onclick="copyToClipboard('${paste.raw_url}', this)">
-                        Копировать
-                    </button>
-                </td>
-                
-                <td>
-                    <button class="delete-btn" onclick="confirmDelete('${paste.id}')">
-                        Удалить
-                    </button>
-                </td>
-            `;
-            
-            tbody.appendChild(row);
-        });
-    }
+   
 
     // ВЫДЕЛЕНИЕ: Теперь работает только с одним типом чекбоксов
     function selectAllPastes() {
@@ -591,8 +519,7 @@ button {
 
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
-        loadSortedPastes(); // Загружаем с сортировкой по умолчанию
-        updateSelectedCount(); // Инициализируем счётчик
+               updateSelectedCount(); // Инициализируем счётчик
     });
     
     // Автоматическое копирование при клике на ссылку (опционально)
@@ -618,6 +545,7 @@ button {
     
 </body>
 </html>
+
 
 
 
