@@ -260,7 +260,7 @@ button {
     <table class="pastes-table">
         <thead>
             <tr>
-                <th>Выделить</th>
+                <th>V</th>
                 <th>ID</th>
                 <th>Дата создания</th>
                 <th>Предпросмотр</th>
@@ -333,6 +333,22 @@ button {
             </div>
         </div>
     </div>
+
+<!-- САМАЯ ПРОСТАЯ ПАГИНАЦИЯ -->
+{% if total_pages > 1 %}
+<div style="text-align: center; margin: 20px; font-size: 14px;">
+    {% if current_page > 1 %}
+        <a href="/?page={{ current_page-1 }}">← Назад</a> | 
+    {% endif %}
+    
+    Страница {{ current_page }} из {{ total_pages }}
+    
+    {% if current_page < total_pages %}
+        | <a href="/?page={{ current_page+1 }}">Вперед →</a>
+    {% endif %}
+</div>
+{% endif %}
+
     
     <script>
     let currentDeleteId = null;
@@ -629,6 +645,7 @@ button {
 </script>
 </body>
 </html>
+
 
 
 
