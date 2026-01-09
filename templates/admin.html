@@ -164,17 +164,17 @@
 
 /* Адаптивность для мобильных */
 @media (max-width: 1200px) {
-    body > div {
+    .main-container { /* Добавь класс main-container к самому внешнему div */
         grid-template-columns: 1fr;
         gap: 20px;
     }
     
     .banner-left,
     .banner-right {
-        display: none; /* Скрываем баннеры на мобильных */
+        display: none;
     }
     
-    body > div > div:nth-child(2) {
+    .content-area {
         padding: 20px;
     }
 }
@@ -223,14 +223,7 @@
 }
         
 
-/* Анимация для баннеров */
-.banner-placeholder:hover,
-.banner-horizontal:hover,
-.banner-small:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
-    transition: all 0.3s ease;
-}
+
 
 /* Пульсирующая анимация для привлечения внимания */
 @keyframes pulse-glow {
@@ -245,15 +238,20 @@
         
 /* Фон для сайта */
 body {
-    background: linear-gradient(135deg, 
-        #667eea 0%, 
-        #764ba2 25%, 
-        #f093fb 50%, 
-        #f5576c 75%, 
-        #ffd89b 100%);
-    background-size: 400% 400%;
-    animation: gradientBG 15s ease infinite;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('https://www.zabala.eu/wp-content/uploads/2025/07/European-Quantum-Strategy.jpg') no-repeat center center fixed;
+    background-size: cover;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: -1;
 }
 
 @keyframes gradientBG {
@@ -314,12 +312,9 @@ button {
 <body>
 
 
-<!-- Декоративные круги на фоне -->
-<div class="decorative-circle circle-1"></div>
-<div class="decorative-circle circle-2"></div>
     
     <!-- Главный контейнер с баннерами -->
-    <div style="
+    <div class="main-container" style="        
         display: grid;
         grid-template-columns: 160px 1fr 160px;
         gap: 25px;
@@ -334,55 +329,29 @@ button {
             top: 40px;
             height: fit-content;
         ">
-            <div class="banner-placeholder" style="
-                width: 160px;
-                height: 600px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-radius: 12px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 600;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                border: 2px dashed rgba(255, 255, 255, 0.3);
-            ">
-                <div style="font-size: 48px; margin-bottom: 15px;">📢</div>
-                <div style="text-align: center; padding: 0 10px; font-size: 14px;">
-                    Рекламный баннер<br>160×600
-                </div>
-                <div style="
-                    font-size: 11px;
-                    opacity: 0.7;
-                    margin-top: 20px;
-                    text-align: center;
-                    padding: 0 10px;
-                ">
-                    Место для вашей рекламы
-                </div>
-            </div>
+           <div style="
+    width: 160px;
+    height: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+    <img src="ТВОЯ_ССЫЛКА_НА_КАРТИНКУ_160x600" 
+         alt="Рекламный баннер" 
+         style="width: 100%; height: 100%; object-fit: cover;">
+</div>
             
             <!-- Малый баннер под вертикальным -->
-            <div class="banner-small" style="
-                width: 160px;
-                height: 120px;
-                background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-                border-radius: 8px;
-                margin-top: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 600;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                border: 2px dashed rgba(255, 255, 255, 0.3);
-            ">
-                <div style="text-align: center;">
-                    <div style="font-size: 24px;">💰</div>
-                    <div style="font-size: 12px; margin-top: 5px;">160×120</div>
-                </div>
-            </div>
+            <div style="
+    width: 160px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+    <img src="ТВОЯ_ССЫЛКА_НА_КАРТИНКУ_160x120" 
+         alt="Малый баннер" 
+         style="width: 100%; height: 100%; object-fit: cover;">
+</div>
         </div>
         
         <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ (основной контент) -->
@@ -1200,6 +1169,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
+
 
 
 
