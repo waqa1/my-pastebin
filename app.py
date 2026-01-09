@@ -185,6 +185,72 @@ def merge_pastes():
         'merged_preview': merged_text[:500] + '...' if len(merged_text) > 500 else merged_text
     })
 
+#создаем json
+
+@app.route('/api/pastes/paginated')
+def api_pastes_paginated():
+    """API для AJAX-пагинации с сортировкой"""
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
+    
+    # Получаем параметры из запроса
+    page = request.args.get('page', 1, type=int)
+    order = request.args.get('order', 'desc')  # 'asc' или 'desc'
+    per_page = 10
+    
+    from database import SessionLocal, Paste
+    
+    db = SessionLocal()
+    
+    try:
+        # 1. Считаем ВСЕ записи в базе
+        total_pastes = db.query(Paste).count()
+        
+        # 2. Сортируем ВСЕ записи и берем только 10 для текущей страницы
+        if order == 'asc':
+            pastes = db.query(Paste).order_by(Paste.created_at.asc()) \
+                                   .offset((page - 1) * per_page) \
+                                   .limit(per_page).all()
+        else:  # 'desc' - по умолчанию
+            pastes = db.query(Paste).order_by(Paste.created_at.desc()) \
+                                   .offset((page - 1) * per_page) \
+                                   .limit(per_page).all()
+        
+        # 3. Формируем ответ
+        result = []
+        host_url = request.host_url.rstrip('/')
+        
+        for paste in pastes:
+            preview = paste.content[:200] + "..." if len(paste.content) > 200 else paste.content
+            result.append({
+                'id': paste.id,
+                'preview': preview,
+                'created_at': paste.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'length': len(paste.content),
+                'view_url': f"{host_url}/view/{paste.id}",
+                'raw_url': f"{host_url}/raw/{paste.id}"
+            })
+        
+        # 4. Считаем общее количество страниц
+        total_pages = max(1, (total_pastes + per_page - 1) // per_page)
+        
+        # 5. Возвращаем JSON
+        return jsonify({
+            'success': True,
+            'pastes': result,
+            'current_page': page,
+            'total_pages': total_pages,
+            'total_pastes': total_pastes,
+            'order': order
+        })
+        
+    except Exception as e:
+        print(f"Ошибка в API пагинации: {e}", file=sys.stderr)
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        db.close()
+        #конец json
+
 @app.route('/api/delete/<paste_id>', methods=['POST'])
 def api_delete(paste_id):
     if not session.get('is_admin'):
@@ -277,6 +343,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
