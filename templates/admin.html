@@ -160,6 +160,108 @@
             visibility: visible;
             opacity: 1;
         }
+
+
+/* Адаптивность для мобильных */
+@media (max-width: 1200px) {
+    body > div {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .banner-left,
+    .banner-right {
+        display: none; /* Скрываем баннеры на мобильных */
+    }
+    
+    body > div > div:nth-child(2) {
+        padding: 20px;
+    }
+}
+
+
+/* Декоративные элементы */
+.decorative-circle {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    z-index: -1;
+}
+
+.circle-1 {
+    top: -150px;
+    right: -150px;
+}
+
+.circle-2 {
+    bottom: -100px;
+    left: -100px;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(245, 124, 0, 0.1) 100%);
+}
+
+/* Световые акценты */
+.glow-effect {
+    position: relative;
+}
+
+.glow-effect::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+    border-radius: inherit;
+    z-index: -1;
+    filter: blur(10px);
+    opacity: 0.3;
+}
+        
+
+/* Анимация для баннеров */
+.banner-placeholder:hover,
+.banner-horizontal:hover,
+.banner-small:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15) !important;
+    transition: all 0.3s ease;
+}
+
+/* Пульсирующая анимация для привлечения внимания */
+@keyframes pulse-glow {
+    0% { box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5); }
+    50% { box-shadow: 0 10px 35px rgba(102, 126, 234, 0.8); }
+    100% { box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5); }
+}
+
+.banner-placeholder {
+    animation: pulse-glow 3s infinite ease-in-out;
+}
+        
+/* Фон для сайта */
+body {
+    background: linear-gradient(135deg, 
+        #667eea 0%, 
+        #764ba2 25%, 
+        #f093fb 50%, 
+        #f5576c 75%, 
+        #ffd89b 100%);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+        
         /* Стили для списка ссылок в столбик */
 #linksColumn {
     scrollbar-width: thin;
@@ -210,42 +312,126 @@ button {
     </style>
 </head>
 <body>
-    <h2 style="
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #333;
-    margin-bottom: 10px;
-">
-    <span style="
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 20px;
-    ">📋</span>
-    PASTEBIN
-</h2>
-   <a href="/logout" style="
-    float: right;
-    padding: 10px 20px;
-    background: #f44336;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-">
-    <span>🚪</span> Выйти
-</a>
+
+
+<!-- Декоративные круги на фоне -->
+<div class="decorative-circle circle-1"></div>
+<div class="decorative-circle circle-2"></div>
+    
+    <!-- Главный контейнер с баннерами -->
+    <div style="
+        display: grid;
+        grid-template-columns: 160px 1fr 160px;
+        gap: 25px;
+        max-width: 1400px;
+        margin: 0 auto;
+        position: relative;
+    ">
+        
+        <!-- ЛЕВЫЙ БАННЕР (вертикальный) -->
+        <div class="banner-left" style="
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+        ">
+            <div class="banner-placeholder" style="
+                width: 160px;
+                height: 600px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                border: 2px dashed rgba(255, 255, 255, 0.3);
+            ">
+                <div style="font-size: 48px; margin-bottom: 15px;">📢</div>
+                <div style="text-align: center; padding: 0 10px; font-size: 14px;">
+                    Рекламный баннер<br>160×600
+                </div>
+                <div style="
+                    font-size: 11px;
+                    opacity: 0.7;
+                    margin-top: 20px;
+                    text-align: center;
+                    padding: 0 10px;
+                ">
+                    Место для вашей рекламы
+                </div>
+            </div>
+            
+            <!-- Малый баннер под вертикальным -->
+            <div class="banner-small" style="
+                width: 160px;
+                height: 120px;
+                background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+                border-radius: 8px;
+                margin-top: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                border: 2px dashed rgba(255, 255, 255, 0.3);
+            ">
+                <div style="text-align: center;">
+                    <div style="font-size: 24px;">💰</div>
+                    <div style="font-size: 12px; margin-top: 5px;">160×120</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ (основной контент) -->
+        <div style="
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            min-height: 90vh;
+        ">
+            <h2 style="
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #333;
+                margin-bottom: 10px;
+                margin-top: 0;
+            ">
+                <span style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 20px;
+                ">📋</span>
+                PASTEBIN
+            </h2>
+            
+            <a href="/logout" style="
+                float: right;
+                padding: 10px 20px;
+                background: #f44336;
+                color: white;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                margin-bottom: 25px;
+            ">
+                <span></span> Выйти
+            </a>
     
     <h3>Создать новую запись:</h3>
     <form id="createForm">
@@ -457,7 +643,78 @@ button {
     </div>
 
 
-
+ <!-- ПРАВЫЙ БАННЕР (вертикальный) -->
+        <div class="banner-right" style="
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+        ">
+            <!-- Баннер 1 -->
+            <div class="banner-horizontal" style="
+                width: 160px;
+                height: 180px;
+                background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                border: 2px dashed rgba(255, 255, 255, 0.3);
+                margin-bottom: 20px;
+            ">
+                <div style="font-size: 36px; margin-bottom: 10px;">🔥</div>
+                <div style="text-align: center; padding: 0 10px; font-size: 14px;">
+                    Горизонтальный<br>баннер 160×180
+                </div>
+            </div>
+            
+            <!-- Баннер 2 -->
+            <div class="banner-horizontal" style="
+                width: 160px;
+                height: 180px;
+                background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                border: 2px dashed rgba(255, 255, 255, 0.3);
+                margin-bottom: 20px;
+            ">
+                <div style="font-size: 36px; margin-bottom: 10px;">✨</div>
+                <div style="text-align: center; padding: 0 10px; font-size: 14px;">
+                    Горизонтальный<br>баннер 160×180
+                </div>
+            </div>
+            
+            <!-- Баннер 3 -->
+            <div class="banner-horizontal" style="
+                width: 160px;
+                height: 180px;
+                background: linear-gradient(135deg, #2196F3 0%, #0D47A1 100%);
+                border-radius: 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                border: 2px dashed rgba(255, 255, 255, 0.3);
+            ">
+                <div style="font-size: 36px; margin-bottom: 10px;">🚀</div>
+                <div style="text-align: center; padding: 0 10px; font-size: 14px;">
+                    Горизонтальный<br>баннер 160×180
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script>
     let currentDeleteId = null;
@@ -881,6 +1138,28 @@ function updateSelectedCount() {
         }
     }
 }
+
+
+        // Обновляем информацию в футере
+function updateFooterInfo() {
+    // Примерные данные (можно заменить на реальные)
+    document.getElementById('totalRecords').textContent = '23';
+    document.getElementById('totalViews').textContent = '1,247';
+    
+    // Расчет времени работы (пример)
+    const startTime = new Date('2024-01-01').getTime();
+    const now = new Date().getTime();
+    const diffDays = Math.floor((now - startTime) / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor(((now - startTime) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    document.getElementById('uptime').textContent = `${diffDays}д ${diffHours}ч`;
+}
+
+// Вызываем при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    updateFooterInfo();
+    // Обновляем каждый час
+    setInterval(updateFooterInfo, 3600000);
+});
         
 </script>
 
@@ -894,10 +1173,34 @@ function updateSelectedCount() {
     <div id="paginationButtons" style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
         <!-- Кнопки пагинации будут вставлены через JavaScript -->
     </div>
+
+<!-- ========== ФУТЕР (ВСТАВИТЬ ЗДЕСЬ) ========== -->
+            <div style="
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #eee;
+                text-align: center;
+                color: #666;
+                font-size: 13px;
+            ">
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 10px;">
+                    <span>📊 Всего записей: <span id="totalRecords">0</span></span>
+                    <span>👁️ Просмотров: <span id="totalViews">0</span></span>
+                    <span>⏱️ Время работы: <span id="uptime">0д 0ч</span></span>
+                </div>
+                <div>
+                    © 2024 Мой Pastebin | 
+                    <a href="#" style="color: #667eea; text-decoration: none;">Политика конфиденциальности</a> | 
+                    <a href="#" style="color: #667eea; text-decoration: none;">Условия использования</a>
+                </div>
+            </div>
+            <!-- ========== КОНЕЦ ФУТЕРА ========== -->
+    
 </div>
     
 </body>
 </html>
+
 
 
 
