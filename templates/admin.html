@@ -169,10 +169,11 @@
         gap: 20px;
     }
     
-    .banner-left,
-    .banner-right {
-        display: none;
-    }
+    .banner-left, .banner-right {
+  position: sticky;
+  top: 40px;
+  align-self: start; /* Фиксирует положение в гриде */
+}
     
     .content-area {
         padding: 20px;
@@ -314,14 +315,15 @@ button {
 
     
     <!-- Главный контейнер с баннерами -->
-    <div class="main-container" style="        
-        display: grid;
-        grid-template-columns: 160px 1fr 160px;
-        gap: 25px;
-        max-width: 1400px;
-        margin: 0 auto;
-        position: relative;
-    ">
+  <div class="main-container" style="
+  display: grid;
+  grid-template-columns: 160px 1fr 160px;
+  gap: 25px;
+  margin: 0 auto;
+  padding: 0 20px; /* Отступы от края экрана */
+  max-width: 95%; /* Занимает 95% ширины, но не больше */
+  width: 100%;
+">
         
         <!-- ЛЕВЫЙ БАННЕР (вертикальный) -->
         <div class="banner-left" style="
@@ -633,7 +635,7 @@ button {
             </div>
             <!-- ========== КОНЕЦ ФУТЕРА ========== -->
             
-            </div>
+            
         <!-- КОНЕЦ ЦЕНТРАЛЬНОЙ ЧАСТИ -->
 
  <!-- ПРАВЫЙ БАННЕР (вертикальный) -->
@@ -1154,6 +1156,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
 </body>
 </html>
+
 
 
 
