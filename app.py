@@ -79,6 +79,13 @@ def view_raw(paste_id):
     response = make_response(clean_content)
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
     response.headers['Content-Length'] = str(len(clean_content.encode('utf-8')))
+
+        # --- НАЧАЛО ИСПРАВЛЕНИЯ ---
+    # Критически важные заголовки против кэширования
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    # --- КОНЕЦ ИСПРАВЛЕНИЯ ---
     
     print(f"=== [DEBUG RAW] Завершено ===\n", file=sys.stderr)
     return response
@@ -178,6 +185,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
