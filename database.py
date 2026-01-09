@@ -46,7 +46,7 @@ def clean_text_for_storage(text):
     cleaned = []
     for char in text:
         code = ord(char)
-        if code == 9 or code == 10 or (code >= 32 and code != 127): or code > 127:
+        if code == 9 or code == 10 or (code >= 32 and code != 127) or code > 127:
             cleaned.append(char)
         else:
             cleaned.append(' ')
@@ -127,4 +127,5 @@ def delete_paste(paste_id):
         return True
     db.close()
     return False
+
 
