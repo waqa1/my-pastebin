@@ -97,12 +97,36 @@ def get_all_pastes():
     return result
 
 def get_paste(paste_id):
+    print(f"\n=== [DEBUG GET] Запрос вставки {paste_id} ===", file=sys.stderr)
+    
     db = SessionLocal()
     paste = db.query(Paste).filter(Paste.id == paste_id).first()
     db.close()
     
     if paste:
+        # КРИТИЧЕСКАЯ ОТЛАДКА: смотрим реальную длину из базы
+        content_length = len(paste.content)
+        print(f"[DEBUG GET] Найдена. Длина контента из БД: {content_length} символов", file=sys.stderr)
+        
+        # Проверяем начало и конец
+        if content_length > 0:
+            first_200 = paste.content[:200].replace('\n', '\\n').replace('\r', '\\r')
+            last_200 = paste.content[-200:].replace('\n', '\\n').replace('\r', '\\r')
+            print(f"[DEBUG GET] Первые 200 символов (\\n видно): '{first_200}'", file=sys.stderr)
+            print(f"[DEBUG GET] Последние 200 символов (\\n видно): '{last_200}'", file=sys.stderr)
+            
+            # Ищем обрыв по шаблону из главы
+            if "Отпускаю" in paste.content:
+                last_отпускаю = paste.content.rfind("Отпускаю")
+                print(f"[DEBUG GET] Последнее 'Отпускаю' на позиции: {last_отпускаю}", file=sys.stderr)
+                context = paste.content[max(0, last_отпускаю-50):min(content_length, last_отпускаю+150)]
+                print(f"[DEBUG GET] Контекст последнего 'Отпускаю': '{context}'", file=sys.stderr)
+        
+        print(f"=== [DEBUG GET] Завершено ===\n", file=sys.stderr)
         return paste.content
+    
+    print(f"[DEBUG GET] Вставка не найдена", file=sys.stderr)
+    print(f"=== [DEBUG GET] Завершено ===\n", file=sys.stderr)
     return None
 
 def get_pastes_by_ids(paste_ids):
@@ -127,3 +151,4 @@ def delete_paste(paste_id):
         return True
     db.close()
     return False
+
