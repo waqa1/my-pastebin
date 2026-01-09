@@ -145,52 +145,31 @@ def get_sorted_pastes():
         return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
 
     order = request.args.get('order', 'desc')  # 'asc' или 'desc'
-
-    # === ВАЖНОЕ ДОПОЛНЕНИЕ: Проверяем, готова ли база ===
-    # Если SessionLocal почему-то еще не инициализирована, делаем это прямо сейчас.
-    # Добавьте этот импорт в САМОМ НАЧАЛЕ функции:
-    from database import init_db
-    global SessionLocal  # Говорим, что будем использовать глобальную переменную
-
-    if SessionLocal is None:
-        print("[DEBUG] SessionLocal is None! Calling init_db()...", file=sys.stderr)
-        init_db()  # Настраиваем базу
-        # После init_db() нужно снова импортировать SessionLocal
-        from database import SessionLocal, Paste
-
-    # === КОНЕЦ ДОПОЛНЕНИЯ ===
-
-    db = SessionLocal()  # Теперь эта строка должна работать
+    
     try:
+        # Получаем все пасты (они уже отсортированы по дате в убывающем порядке из get_all_pastes)
+        from database import get_all_pastes
+        pastes = get_all_pastes()
+        
+        # Если нужна сортировка по возрастанию, меняем порядок
         if order == 'asc':
-            pastes = db.query(Paste).order_by(Paste.created_at.asc()).all()
-        else:
-            pastes = db.query(Paste).order_by(Paste.created_at.desc()).all()
-
-        result = []
+            pastes = list(reversed(pastes))
+        
+        # Добавляем полные URLs
         host_url = request.host_url.rstrip('/')
-
         for paste in pastes:
-            result.append({
-                'id': paste.id,
-                'preview': paste.content[:200] + "..." if len(paste.content) > 200 else paste.content,
-                'created_at': paste.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-                'length': len(paste.content),
-                'view_url': f"{host_url}/view/{paste.id}",
-                'raw_url': f"{host_url}/raw/{paste.id}"
-            })
-
+            paste['view_url'] = f"{host_url}/view/{paste['id']}"
+            paste['raw_url'] = f"{host_url}/raw/{paste['id']}"
+        
         return jsonify({
             'success': True,
-            'pastes': result,
+            'pastes': pastes,
             'order': order
         })
     except Exception as e:
         print(f"Ошибка при получении отсортированных записей: {e}", file=sys.stderr)
         return jsonify({'success': False, 'error': 'Ошибка сервера'}), 500
-    finally:
-        db.close()
-        # конец сортировки
+# конец сортировки
 
 @app.route('/logout')
 def logout():
@@ -240,6 +219,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
