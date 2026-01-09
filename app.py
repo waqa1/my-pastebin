@@ -8,7 +8,7 @@ import re
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_for_sessions'
 
-init_db()
+
 
 @app.route('/', methods=['GET', 'POST'])
 def admin():
@@ -173,6 +173,9 @@ def clean_text_for_output(text):
     text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)  # Множественные пустые строки -> две
     
     return text.strip()
+    
+init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
