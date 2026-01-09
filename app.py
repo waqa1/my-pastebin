@@ -136,6 +136,45 @@ def api_delete(paste_id):
         return jsonify({'success': True})
     else:
         return jsonify({'success': False, 'error': 'Не удалось удалить'}), 404
+        
+# начало сортировки
+@app.route('/api/pastes/sorted')
+def get_sorted_pastes():
+    """Возвращает все пасты, отсортированные по дате"""
+    if not session.get('is_admin'):
+        return jsonify({'success': False, 'error': 'Доступ запрещен'}), 403
+    
+    order = request.args.get('order', 'desc')  # 'asc' или 'desc'
+    
+    db = SessionLocal()
+    try:
+        if order == 'asc':
+            pastes = db.query(Paste).order_by(Paste.created_at.asc()).all()
+        else:
+            pastes = db.query(Paste).order_by(Paste.created_at.desc()).all()
+        
+        result = []
+        for paste in pastes:
+            result.append({
+                'id': paste.id,
+                'preview': paste.content[:200] + "..." if len(paste.content) > 200 else paste.content,
+                'created_at': paste.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+                'length': len(paste.content),
+                'view_url': f"{request.host_url.rstrip('/')}/view/{paste.id}",
+                'raw_url': f"{request.host_url.rstrip('/')}/raw/{paste.id}"
+            })
+        
+        return jsonify({
+            'success': True,
+            'pastes': result,
+            'order': order
+        })
+    except Exception as e:
+        print(f"Ошибка при получении отсортированных записей: {e}", file=sys.stderr)
+        return jsonify({'success': False, 'error': 'Ошибка сервера'}), 500
+    finally:
+        db.close()
+        # конец сортировки
 
 @app.route('/logout')
 def logout():
@@ -185,6 +224,7 @@ init_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
