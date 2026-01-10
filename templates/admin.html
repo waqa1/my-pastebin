@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pastebian - хранилище текста</title>
+    <title>Pastebian — хранилище текста</title>
     <!-- Favicon -->
     <link rel="icon" href="https://img.icons8.com/color/96/000000/data-backup.png" type="image/png">
     <link rel="shortcut icon" href="https://img.icons8.com/color/96/000000/data-backup.png" type="image/png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
-        /* ОСНОВНЫЕ СТИЛИ СТРАНИЦЫ */
+        /* ОСНОВНЫЕ СТИЛИ */
         body {
             font-family: Arial, sans-serif;
             margin: 40px auto;
@@ -29,7 +29,7 @@
             z-index: -1;
         }
 
-        /* СТИЛИ ДЛЯ ГЛАВНОГО ГРИД‑КОНТЕЙНЕРА (3 КОЛОНКИ) */
+        /* ГРИД-КОНТЕЙНЕР: 3 КОЛОНКИ */
         .main-container {
             display: grid;
             grid-template-columns: 160px 1fr 160px;
@@ -41,7 +41,7 @@
             min-height: 100vh;
         }
 
-        /* ОБЩИЕ СТИЛИ ДЛЯ БАННЕРОВ (ЛЕВЫЙ И ПРАВЫЙ) */
+        /* СТИЛИ БАННЕРОВ */
         .banner-left,
         .banner-right {
             position: sticky;
@@ -50,13 +50,12 @@
             height: fit-content;
         }
 
-        /* СТИЛИ ДЛЯ ПРАВОГО БАННЕРА */
         .banner-right {
             margin-left: 20px;
             z-index: 10;
         }
 
-        /* СТИЛИ ДЛЯ ЦЕНТРАЛЬНОЙ ОБЛАСТИ (ОСНОВНОЙ КОНТЕНТ) */
+        /* ЦЕНТРАЛЬНАЯ ОБЛАСТЬ */
         .content-area {
             background: white;
             border-radius: 16px;
@@ -65,7 +64,7 @@
             min-height: 90vh;
         }
 
-        /* СТИЛИ ДЛЯ ПОЛЯ ВВОДА ТЕКСТА */
+        /* ФОРМЫ И ВВОДЫ */
         textarea {
             width: 100%;
             height: 200px;
@@ -74,7 +73,6 @@
             margin-bottom: 15px;
         }
 
-        /* СТИЛИ ДЛЯ КНОПОК */
         button {
             padding: 10px 20px;
             background: #4CAF50;
@@ -88,7 +86,7 @@
             float: right;
         }
 
-        /* СТИЛИ ДЛЯ ТАБЛИЦЫ ЗАПИСЕЙ */
+        /* ТАБЛИЦА ЗАПИСЕЙ */
         .pastes-table {
             width: 100%;
             border-collapse: collapse;
@@ -115,7 +113,7 @@
             background-color: #f9f9f9;
         }
 
-        /* СТИЛИ ДЛЯ КНОПКИ УДАЛЕНИЯ ЗАПИСИ */
+        /* КНОПКИ ДЕЙСТВИЙ */
         .delete-btn {
             background-color: #f44336;
             color: white;
@@ -130,7 +128,6 @@
             background-color: #d32f2f;
         }
 
-        /* СТИЛИ ДЛЯ КНОПКИ КОПИРОВАНИЯ ССЫЛКИ */
         .copy-btn {
             background-color: #757575;
             color: white;
@@ -151,7 +148,7 @@
             background-color: #4CAF50;
         }
 
-        /* СТИЛИ ДЛЯ ФУТЕРА */
+        /* ФУТЕР */
         .footer {
             margin-top: 40px;
             padding-top: 20px;
@@ -161,7 +158,7 @@
             font-size: 13px;
         }
 
-        /* АДАПТИВНЫЕ СТИЛИ (для экранов < 1200px) */
+        /* АДАПТИВНОСТЬ */
         @media (max-width: 1200px) {
             .main-container {
                 grid-template-columns: 1fr;
@@ -175,18 +172,10 @@
             }
         }
 
-        /* ДОПОЛНИТЕЛЬНЫЕ ЭФФЕКТЫ (наведение, анимации) */
+        /* ЭФФЕКТЫ */
         button:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
-        }
-
-        select:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
-        }
-
-        #selectedCount {
-            transition: all 0.3s ease;
         }
 
         #selectedCount.updated {
@@ -201,10 +190,10 @@
     </style>
 </head>
 <body>
-    <!-- ГЛАВНЫЙ ГРИД‑КОНТЕЙНЕР (3 КОЛОНКИ: ЛЕВЫЙ БАННЕР, ЦЕНТР, ПРАВЫЙ БАННЕР) -->
+    <!-- ГЛАВНЫЙ ГРИД (3 КОЛОНКИ) -->
     <div class="main-container">
 
-        <!-- ЛЕВЫЙ БАННЕР (вертикальный рекламный блок) -->
+        <!-- ЛЕВЫЙ БАННЕР -->
         <div class="banner-left">
             <div style="
                 width: 160px;
@@ -217,22 +206,22 @@
                      style="width: 100%; height: 100%; object-fit: cover;">
             </div>
 
-            <!-- Малый баннер под вертикальным -->
+            <!-- Малый баннер -->
             <div style="
                 width: 160px;
                 height: 120px;
-                border-radius: 8px;                overflow: hidden;
+                border-radius: 8px;
+                overflow: hidden;
                 margin-top: 20px;
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
-                <img src="https://www.mycharm.ru/data/cache/2016feb/25/43/196051_53246-160x120x.jpg"
+                <img src="https://via.placeholder.com/160x120?text=Ad+Small"
                      alt="Малый баннер"
                      style="width: 100%; height: 100%; object-fit: cover;">
             </div>
         </div>
 
-        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ (основной контент сайта) -->
-        <div class="content-area">
-            <h2 style="
+        <!-- ЦЕНТРАЛЬНАЯ ЧАСТЬ -->
+        <div class="content-area">            <h2 style="
                 display: flex;
                 align-items: center;
                 gap: 10px;
@@ -267,9 +256,8 @@
                 gap: 8px;
                 transition: all 0.3s ease;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                margin-bottom: 25px;
             ">
-                <span></span> Выйти
+                <span>⌫</span> Выйти
             </a>
 
             <h3>Создать новую запись:</h3>
@@ -279,11 +267,11 @@
                 <button type="submit">Создать и получить ссылку</button>
             </form>
 
-            <div id="result" class="result-box" style="display: none;"></div>
+            <div id="result" class="result-box" style="margin: 15px 0; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; display: none;"></div>
 
             <h3>Все загруженные записи:</h3>
 
-            <!-- Панель управления (сортировка, выделение, копирование) -->
+            <!-- Панель управления -->
             <div style="
                 margin: 20px 0;
                 padding: 20px;
@@ -293,7 +281,7 @@
                 color: white;
             ">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-                    <!-- Левая часть: Сортировка -->
+                    <!-- Сортировка -->
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <span style="font-weight: 600; font-size: 15px;">Сортировка:</span>
                         <select id="sortOrder" style="
@@ -313,7 +301,7 @@
                         </select>
                     </div>
 
-                    <!-- Центральная часть: Управление выделением -->
+                    <!-- Управление выделением -->
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <button onclick="selectAllPastes()" style="
                             padding: 10px 18px;
@@ -352,7 +340,7 @@
                         </button>
                     </div>
 
-                    <!-- Правая часть: Копирование и счётчик -->
+                    <!-- Копирование и счётчик -->
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="display: flex; gap: 8px;">
                             <button onclick="copySelectedLinks('view')" style="
@@ -392,16 +380,8 @@
                             </button>
                         </div>
 
-                        <!-- Счётчик выделенных записей -->
                         <div id="selectedCount" style="
                             padding: 10px 16px;
-                            background: rgba(255, 255, 255, 0.2);
-                            border-radius: 8px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            min-width: 120px;
-                            text-align: center;
-                            backdrop-filter: blur                            padding: 10px 16px;
                             background: rgba(255, 255, 255, 0.2);
                             border-radius: 8px;
                             font-size: 14px;
@@ -411,14 +391,14 @@
                             backdrop-filter: blur(10px);
                             border: 1px solid rgba(255, 255, 255, 0.3);
                 ">
-                    Выделено: 0
+                            Выделено: 0
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Таблица записей (будет заполняться через AJAX) -->
-    <table class="pastes-table" id="pastesTable" style="display: none;">
+    <!-- ТАБЛИЦА ЗАПИСЕЙ -->
+    <table class="pastes-table" id="pastesTable">
         <thead>
             <tr>
                 <th>V</th>
@@ -431,74 +411,168 @@
             </tr>
         </thead>
         <tbody id="pastesTableBody">
-            <!-- Сюда будет вставляться содержимое через JavaScript -->
+            <!-- Пример тестовой строки (можно удалить после подключения к БД) -->
+            <tr>
+                <td><input type="checkbox" class="paste-checkbox"></td>
+                <td>12345</td>
+                <td>2026-01-10 14:30</td>
+                <td>Это пример текста для предпросмотра...</td>
+                <td><a href="/view/12345" class="copy-btn" data-link="/view/12345">/view</a></td>
+                <td><a href="/raw/12345" class="copy-btn" data-link="/raw/12345">/raw</a></td>
+                <td>
+                    <button class="delete-btn" data-id="12345">Удалить</button>
+                </td>
+            </tr>
+            <!-- Дополнительные строки будут добавляться через JS -->
         </tbody>
     </table>
 
-    <!-- Сообщение при отсутствии записей -->
-    <div id="noPastesMessage" style="display: none; text-align: center; padding: 40px; color: #666;">
+    <!-- СООБЩЕНИЯ -->
+    <div id="noPastesMessage" style="
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        display: none;
+    ">
         📝 Записей пока нет. Создайте первую!
     </div>
 
-    <!-- Блок загрузки (показывается во время запроса к серверу) -->
-    <div id="loadingMessage" style="text-align: center; padding: 40px; color: #666;">
+    <div id="loadingMessage" style="
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    ">
         ⏳ Загрузка записей...
     </div>
 
-    <!-- Пагинация (будет обновляться через AJAX) -->
-    <div id="paginationContainer" style="display: none; text-align: center; margin: 30px 0; padding: 20px; border-top: 1px solid #ddd;">
-        <p id="pageInfo" style="color: #666; margin-bottom: 10px;">
-            Загрузка...
+    <!-- ПАГИНАЦИЯ -->
+    <div id="paginationContainer" style="
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+    ">
+        <p id="pageInfo" style="color: #666; margin: 0 10px;">
+            Страница 1 из 5
         </p>
-        <div id="paginationButtons" style="display: flex; justify-content: center; gap: 5px; flex-wrap: wrap;">
-            <!-- Кнопки пагинации будут вставлены через JavaScript -->
+        <div id="paginationButtons" style="display: flex; gap: 5px;">
+            <button onclick="loadPage(1)" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">1</button>
+            <button onclick="loadPage(2)" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">2</button>
+            <button onclick="loadPage(3)" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">3</button>
+            <!-- Кнопки будут обновляться через JS -->
         </div>
     </div>
 
-    <!-- ФУТЕР (информация о сайте) -->
-    <div class="footer">
-        <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 10px;">
-            <span>📊 Всего записей: <span id="totalRecords">0</span></span>
-            <span>👁️ Просмотров: <span id="totalViews">0</span></span>
-            <span>⏱️ Время работы: <span id="uptime">0д 0ч</span></span>
+    <!-- ПРАВЫЙ БАННЕР -->
+    <div class="banner-right">
+        <div style="
+            width: 160px;
+            height: 600px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        ">
+            <img src="https://via.placeholder.com/160x600?text=Right+Ad"
+                 alt="Правый рекламный баннер"
+                 style="width: 100%; height: 100%; object-fit: cover;">
         </div>
-        <div>
-            © 2026 My Pastebian |
-            <a href="#" style="color: #2196F3; text-decoration: none;">О проекте</a> |
-            <a href="#" style="color: #2196F3; text-decoration: none;">Поддержка</a>
+
+        <div style="
+            width: 160px;
+            height: 120px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        ">
+            <img src="https://via.placeholder.com/160x120?text=Promo"
+                 alt="Промо-блок"
+                 style="width: 100%; height: 100%; object-fit: cover;">
         </div>
     </div>
+</div> <!-- ЗАКРЫТИЕ .main-container -->
 
-    <!-- JavaScript (примерный шаблон для функциональности) -->
-    <script>
-        // Функция: выделить все записи
-        function selectAllPastes() {
-            // Логика выделения всех чекбоксов
-            console.log('Выделить все');
+<!-- ФУТЕР -->
+<div class="footer">
+    <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 10px;">
+        <span>📊 Всего записей: <span id="totalRecords">123</span></span>
+        <span>👁️ Просмотров: <span id="totalViews">4567</span></span>
+        <span>⏱️ Время работы: <span id="uptime">30д 12ч</span></span>
+    </div>
+    <div>
+        © 2026 My Pastebian |
+        <a href="#" style="color: #2196F3; text-decoration: none;">О проекте</a> |
+        <a href="#" style="color: #2196F3; text-decoration: none;">Поддержка</a>
+    </div>
+</div>
+
+<!-- JavaScript -->
+<script>
+    // Управление чекбоксами
+    function selectAllPastes() {
+        document.querySelectorAll('.paste-checkbox').forEach(cb => cb.checked = true);
+        updateSelectedCount();
+    }
+
+    function deselectAllPastes() {
+        document.querySelectorAll('.paste-checkbox').forEach(cb => cb.checked = false);
+        updateSelectedCount();
+    }
+
+    // Обновление счётчика выделенных
+    function updateSelectedCount() {
+        const count = document.querySelectorAll('.paste-checkbox:checked').length;
+        document.getElementById('selectedCount').textContent = `Выделено: ${count}`;
+        
+        // Анимация
+        document.getElementById('selectedCount').classList.add('updated');
+        setTimeout(() => {
+            document.getElementById('selectedCount').classList.remove('updated');
+        }, 500);
+    }
+
+    // Копирование ссылок
+    function copySelectedLinks(type) {
+        const checked = document.querySelectorAll('.paste-checkbox:checked');
+        if (checked.length === 0) {
+            alert('Выберите записи для копирования!');
+            return;
         }
 
-        // Функция: снять выделение со всех записей
-        function deselectAllPastes() {
-            // Логика снятия выделения со всех чекбоксов
-            console.log('Снять выделение');
-        }
+        let links = [];
+        checked.forEach(cb => {
+            const row = cb.closest('tr');
+            const link = row.querySelector(`[data-link*="/${type}/"]`).dataset.link;
+            links.push(link);
+        });
 
-        // Функция: скопировать ссылки выбранного типа (/view или /raw)
-        function copySelectedLinks(type) {
-            // Логика копирования ссылок по типу
-            console.log(`Копировать ссылки типа: ${type}`);
-        }
+        navigator.clipboard.writeText(links.join('\n'))
+            .then(() => {
+                alert(`Скопировано ${links.length} ссылок типа /${type}!`);
+            })
+            .catch(err => {
+                console.error('Ошибка копирования:', err);
+                alert('Не удалось скопировать ссылки.');
+            });
+    }
 
-        // Пример: обновление счётчика выделенных записей
-        function updateSelectedCount(count) {
-            document.getElementById('selectedCount').textContent = `Выделено: ${count}`;
-            document.getElementById('selectedCount').classList.add('updated');
-            setTimeout(() => {
-                document.getElementById('selectedCount').classList.remove('updated');
-            }, 500);
-        }
+    // Пример загрузки данных (замените на реальный AJAX)
+    function loadData() {
+        // Здесь должен быть fetch или XMLHttpRequest
+        console.log('Загрузка данных...');
+        
+        // После загрузки:
+        document.getElementById('loadingMessage').style.display = 'none';
+        document.getElementById('pastesTable').style.display = 'table';
+        // Если записей нет:
+        // document.getElementById('noPastesMessage').style.display = 'block';
+    }
 
-        // Здесь можно добавить AJAX‑запросы для загрузки записей и пагинации
-    </script>
+    // Загрузка страницы (имитация)
+    window.onload = function() {
+        loadData();
+    };
+</script>
 </body>
 </html>
